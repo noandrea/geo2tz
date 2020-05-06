@@ -13,18 +13,19 @@ Tz data comes from https://github.com/evansiroky/timezone-boundary-builder
 ## Motivations
 
 Geo coordinates might be a sensible information to share in many context,
-and I needed a self-hosted solution to ensure that coordinates where not leaked.
+and I needed a self-hosted solution to ensure that coordinates where not leaked to 3rd party services.
+On another side this feature is nicely self contained and having one service to expose it spares the effort to bundle the tz database everywhere.
 
 
 ## API
 
-the services exposes only one api:
+the services exposes only one API:
 
 ```
 GET /tz/${LAT}/${LON}
 ```
 
-and returns a json reply (`http/200`):
+that returns a json reply (`http/200`):
 
 ```
 {
