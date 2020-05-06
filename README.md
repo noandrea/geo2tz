@@ -24,7 +24,7 @@ the services exposes only one api:
 GET /tz/${LAT}/${LON}
 ```
 
-and returns a json reply:
+and returns a json reply (`http/200`):
 
 ```
 {
@@ -36,6 +36,13 @@ and returns a json reply:
 }
 ```
 
+or in case of errors (`http/4**`):
+
+```
+{
+    "message": "${DESCRIPTION}
+}
+```
 
 ## Docker
 
@@ -52,6 +59,57 @@ The image is built on scratch, the image size is ~76mb:
 
 ## K8s
 
-Kubernetes configuration example is provided in the 
+Kubernetes configuration example:
+
+```
+---
+# Deployment
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: geo2tz
+  name: geo2tz
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: geo2tz
+  template:
+    metadata:
+      labels:
+        app: geo2tz
+    spec:
+      containers:
+      - env:
+        # this is an example, a better alternative would be to use 
+        # a k8s secret or config map
+        - name: GEO2TZ_API_KEY
+          value: asecretmaybebetter
+        image: apeunit/geo2tz
+        imagePullPolicy: Always
+        name: geo2tz
+        ports:
+        - name: http
+          containerPort: 2004
+---
+# Service 
+# the service for the above deployment
+apiVersion: v1
+kind: Service
+metadata:
+  name: geo2tz-service
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: http
+  selector:
+    app: geo2tz
+
+```
 
 
