@@ -47,12 +47,12 @@ func Start(config ConfigSchema) (err error) {
 		//parse latitude
 		lat, err := parseCoordinate(c.Param(Latitude), Latitude)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]interface{}{"message": err})
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{"message": fmt.Sprint(err)})
 		}
 		//parse longitude
 		lon, err := parseCoordinate(c.Param(Longitude), Longitude)
 		if err != nil {
-			return c.JSON(http.StatusBadRequest, map[string]interface{}{"message": err})
+			return c.JSON(http.StatusBadRequest, map[string]interface{}{"message": fmt.Sprint(err)})
 		}
 		// build coordinates object
 		coords := timezoneLookup.Coord{
@@ -62,7 +62,7 @@ func Start(config ConfigSchema) (err error) {
 		// query the coordinates
 		res, err := tz.Query(coords)
 		if err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]interface{}{"message": err})
+			return c.JSON(http.StatusInternalServerError, map[string]interface{}{"message": fmt.Sprint(err)})
 		}
 		return c.JSON(http.StatusOK, map[string]interface{}{"tz": res, "coords": coords})
 	})
@@ -70,6 +70,7 @@ func Start(config ConfigSchema) (err error) {
 	return
 }
 
+// parseCoordinate parse a string into a coordinate
 func parseCoordinate(val, side string) (float32, error) {
 	if len(strings.TrimSpace(val)) == 0 {
 		return 0, fmt.Errorf("Empty coordinate value")
