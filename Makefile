@@ -7,7 +7,7 @@ OUTPUTFOLDER = dist
 # docker image
 DOCKER_REGISTRY = apeunit
 DOCKER_IMAGE = geo2tz
-DOCKER_TAG = $(shell git describe --always --tags)
+DOCKER_TAG = $(GIT_DESCR)
 # build paramters
 OS = linux
 ARCH = amd64
@@ -28,7 +28,7 @@ build: build-dist
 
 build-dist: $(GOFILES)
 	@echo build binary to $(OUTPUTFOLDER)
-	GOOS=$(OS) GOARCH=$(ARCH) CGO_ENABLED=0 go build -ldflags "-X main.Version=$(GIT_DESCR)" -o $(OUTPUTFOLDER)/$(APP) .
+	GOOS=$(OS) GOARCH=$(ARCH) CGO_ENABLED=0 go build -ldflags '-s -w -extldflags "-static" -X main.Version=$(GIT_DESCR)' -o $(OUTPUTFOLDER)/$(APP) .
 	@echo copy resources
 	cp -r README.md LICENSE $(OUTPUTFOLDER)
 	@echo done
@@ -57,7 +57,7 @@ docker: docker-build
 
 docker-build:
 	@echo copy resources
-	docker build --build-arg GIT_DESCR=$(GIT_DESCR) -t $(DOCKER_IMAGE)  .
+	docker build --build-arg DOCKER_TAG='$(GIT_DESCR)' -t $(DOCKER_IMAGE)  .
 	@echo done
 
 docker-push:

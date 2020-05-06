@@ -1,8 +1,8 @@
-ARG GIT_DESCR=0.0.0
 ############################
 # STEP 1 build executable binary
 ############################
 FROM golang:alpine AS builder
+ARG DOCKER_TAG=0.0.0
 # Install git.
 # Git is required for fetching the dependencies.
 RUN apk update && apk add --no-cache git curl unzip
@@ -15,10 +15,7 @@ RUN go get github.com/evanoberholster/timezoneLookup
 RUN curl -LO https://github.com/evansiroky/timezone-boundary-builder/releases/download/2020a/timezones-with-oceans.geojson.zip
 RUN unzip timezones-with-oceans.geojson.zip 
 # build the database
-
 RUN go run /go/src/github.com/evanoberholster/timezoneLookup/cmd/timezone.go -json "/tz/dist/combined-with-oceans.json" -db=/timezone -type=boltdb
-RUN ls /
-
 # checkout the project 
 WORKDIR /builder
 COPY . .
@@ -26,7 +23,7 @@ COPY . .
 # Using go get.
 RUN go get -d -v
 # Build the binary.
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /geo2tz -ldflags="-s -w -extldflags \"-static\" -X main.Version=${GIT_DESCR}"
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /geo2tz -ldflags="-s -w -extldflags \"-static\" -X main.Version=$DOCKER_TAG"
 ############################
 # STEP 2 build a small image
 ############################
