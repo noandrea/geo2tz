@@ -1,6 +1,6 @@
 # Geo2Tz
 
-[![Build Status](https://travis-ci.com/noandrea/distill.svg?branch=master)](https://travis-ci.com/noandrea/geo2tz) [![codecov](https://codecov.io/gh/noandrea/geo2tz/branch/master/graph/badge.svg)](https://codecov.io/gh/noandrea/geo2tz) [![GoDoc](https://godoc.org/github.com/noandrea/geo2tz?status.svg)](https://godoc.org/github.com/noandrea/distill) [![Go Report Card](https://goreportcard.com/badge/github.com/noandrea/geo2tz)](https://goreportcard.com/report/github.com/noandrea/geo2tz)
+[![Build Status](https://travis-ci.com/noandrea/geo2tz.svg?branch=master)](https://travis-ci.com/noandrea/geo2tz) [![codecov](https://codecov.io/gh/noandrea/geo2tz/branch/master/graph/badge.svg)](https://codecov.io/gh/noandrea/geo2tz) [![GoDoc](https://godoc.org/github.com/noandrea/geo2tz?status.svg)](https://godoc.org/github.com/noandrea/distill) [![Go Report Card](https://goreportcard.com/badge/github.com/noandrea/geo2tz)](https://goreportcard.com/report/github.com/noandrea/geo2tz)
 
 
 A self-host-able service to get the timezone given geo coordinates (lat/long)
