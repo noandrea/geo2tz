@@ -17,13 +17,9 @@ type TzSchema struct {
 
 // WebSchema configuration
 type WebSchema struct {
-	ListenAddress   string `mapstructure:"listen_address,omitempty"`
-	AuthEnable      bool   `mapstructure:"auth_enable,omitempty"`
-	AuthTokenHeader string `mapstructure:"auth_token_header,omitempty"`
-	AuthTokenParam  string `mapstructure:"auth_token_param,omitempty"`
-	TLSEnable       bool   `mapstructure:"tls_enable,omitempty"`
-	TLSHost         string `mapstructure:"tls_host,omitempty"`
-	TLSEmail        string `mapstructure:"tls_email,omitempty"`
+	ListenAddress      string `mapstructure:"listen_address,omitempty"`
+	AuthTokenValue     string `mapstructure:"auth_token_value,omitempty"`
+	AuthTokenParamName string `mapstructure:"auth_token_param_name,omitempty"`
 }
 
 // ConfigSchema main configuration for the news room
@@ -43,15 +39,11 @@ func Defaults() {
 	viper.SetDefault("tz.download_tz_data", true)
 	viper.SetDefault("tz.download_tz_data_url", "https://api.github.com/repos/evansiroky/timezone-boundary-builder/releases/latest")
 	viper.SetDefault("tz.download_tz_filename", "timezones.geojson.zip")
-
 	// web
 	viper.SetDefault("web.listen_address", ":2004")
-	viper.SetDefault("web.auth_enable", true)
-	viper.SetDefault("web.auth_token_header", "Geo2TzAuthToken")
-	viper.SetDefault("web.auth_token_param", "t")
-	viper.SetDefault("web.tls_enable", false)
-	viper.SetDefault("web.tls_host", "http://localhost:8080")
-	viper.SetDefault("web.tls_email", "")
+	viper.SetDefault("web.auth_token_value", "") // GEO2TZ_WEB_AUTH_TOKEN_VALUE="ciao"
+	viper.SetDefault("web.auth_token_param_name", "t")
+
 }
 
 // Validate a configuration

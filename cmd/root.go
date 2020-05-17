@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/noandrea/geo2tz/server"
 	log "github.com/sirupsen/logrus"
@@ -57,9 +58,10 @@ func initConfig() {
 		viper.AddConfigPath("/etc/geo2tz")
 		viper.SetConfigName("config")
 	}
-
-	viper.AutomaticEnv() // read in environment variables that match
 	server.Defaults()
+	viper.SetEnvPrefix("GEO2TZ")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in, else use the defaults
 	if err := viper.ReadInConfig(); err == nil {

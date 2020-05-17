@@ -45,6 +45,25 @@ or in case of errors (`http/4**`):
 }
 ```
 
+### Authorization
+
+Geo2Tz supports a basic token authorization mechanism, if the configuration value for `web.auth_token_value` is a non empty string, geo2tz will check the query parameter value for to authorized the requests.
+
+For example running the service with:
+
+```
+docker run -p 2004:2004 -e GEO2TZ_WEB_AUTH_TOKEN_VALUE=secret apeunit/geo2tz 
+```
+
+will enable authorization:
+
+```
+> curl http://localhost:2004/tz/41.902782/12.496365
+{"message":"unauthorized"}
+> http://localhost:2004/tz/41.902782/12.496365\?t\=secret
+{"coords":{"lat":41.902782,"lon":12.496365},"tz":"Europe/Rome"}
+```
+
 ## Docker
 
 Docker image is available at https://hub.docker.com/orgs/apeunit/repositories
@@ -57,6 +76,26 @@ The image is built on scratch, the image size is ~76mb:
 
 - ~11mb the application
 - ~62mb the tz data 
+
+## Docker compose
+
+Docker compose yaml example
+
+```
+version: '3'
+services:
+  geo2tz:
+    container_name: geo2tz
+    image: apeunit/geo2tz:latest
+    ports:
+    - 2004:2004
+    # uncomment to enable authorization via request token
+    # environment:
+    # - GEO2TZ_WEB_AUTH_TOKEN_VALUE=somerandomstringhere
+    # - GEO2TZ_WEB_AUTH_TOKEN_PARAM_NAME=t 
+    # - GEO2TZ_WEB_LISTEN_ADDRESS=":2004"
+
+```
 
 ## K8s
 
@@ -84,11 +123,14 @@ spec:
     spec:
       containers:
       - env:
-        # this is an example, a better alternative would be to use 
-        # a k8s secret or config map
-        - name: GEO2TZ_API_KEY
-          value: asecretmaybebetter
-        image: apeunit/geo2tz
+        # if this var is not empty it will enabled token authorization for requests 
+        #- name: GEO2TZ_WEB_AUTH_TOKEN_VALUE
+        #  value: "asecretmaybebetter" # default is empty
+        #- name: GEO2TZ_WEB_AUTH_TOKEN_PARAM_NAME
+        #  value: "t" # default value
+        #- name: GEO2TZ_WEB_LISTEN_ADDRESS
+        #  value: ":2004" # default value
+        image: apeunit/geo2tz:latest
         imagePullPolicy: Always
         name: geo2tz
         ports:

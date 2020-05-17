@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"crypto/subtle"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -11,6 +12,8 @@ import (
 	"github.com/evanoberholster/timezoneLookup"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	log "github.com/sirupsen/logrus"
+	"golang.org/x/crypto/blake2b"
 )
 
 // constant valuses for lat / lon
@@ -23,6 +26,20 @@ var (
 	tz timezoneLookup.TimezoneInterface
 	e  *echo.Echo
 )
+
+// hash calculate the hash of a string
+func hash(data ...interface{}) []byte {
+	hash := blake2b.Sum256([]byte(fmt.Sprint(data...)))
+	return hash[:]
+}
+
+// isEq check if the hash of the second value is equals to the first value
+func isEq(expectedTokenHash []byte, actualToken string) bool {
+	if subtle.ConstantTimeCompare(expectedTokenHash, hash(actualToken)) == 1 {
+		return true
+	}
+	return false
+}
 
 // Start starts the web server
 func Start(config ConfigSchema) (err error) {
@@ -37,6 +54,17 @@ func Start(config ConfigSchema) (err error) {
 	if err != nil {
 		return
 	}
+
+	// check token authorization
+	hashedToken := hash(config.Web.AuthTokenValue)
+	authEnabled := false
+	if len(config.Web.AuthTokenValue) > 0 {
+		log.Info("Authorization enabled")
+		authEnabled = true
+	} else {
+		log.Info("Authorization disabled")
+	}
+
 	// echo start
 	e = echo.New()
 	e.Use(middleware.CORS())
@@ -44,6 +72,13 @@ func Start(config ConfigSchema) (err error) {
 	e.Use(middleware.Recover())
 	// logger
 	e.GET("/tz/:lat/:lon", func(c echo.Context) (err error) {
+		// token verification
+		if authEnabled {
+			requestToken := c.QueryParam(config.Web.AuthTokenParamName)
+			if !isEq(hashedToken, requestToken) {
+				return c.JSON(http.StatusUnauthorized, map[string]interface{}{"message": "unauthorized"})
+			}
+		}
 		//parse latitude
 		lat, err := parseCoordinate(c.Param(Latitude), Latitude)
 		if err != nil {
