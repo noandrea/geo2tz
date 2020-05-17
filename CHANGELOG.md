@@ -2,6 +2,12 @@
 ## [Unreleased]
 
 
+<a name="0.2.0"></a>
+## [0.2.0] - 2020-05-17
+### Feat
+- add authorization support
+
+
 <a name="0.1.0"></a>
 ## [0.1.0] - 2020-05-06
 
@@ -27,5 +33,6 @@
 - add tests for coordinate parsing
 
 
-[Unreleased]: https://github.com/noandrea/geo2tz/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/noandrea/geo2tz/compare/0.2.0...HEAD
+[0.2.0]: https://github.com/noandrea/geo2tz/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/noandrea/geo2tz/compare/0.0.0...0.1.0
