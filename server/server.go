@@ -18,8 +18,9 @@ import (
 
 // constant valuses for lat / lon
 const (
-	Latitude  = "lat"
-	Longitude = "lon"
+	Latitude      = "lat"
+	Longitude     = "lon"
+	compareEquals = 1
 )
 
 var (
@@ -35,10 +36,7 @@ func hash(data ...interface{}) []byte {
 
 // isEq check if the hash of the second value is equals to the first value
 func isEq(expectedTokenHash []byte, actualToken string) bool {
-	if subtle.ConstantTimeCompare(expectedTokenHash, hash(actualToken)) == 1 {
-		return true
-	}
-	return false
+	return subtle.ConstantTimeCompare(expectedTokenHash, hash(actualToken)) == compareEquals
 }
 
 // Start starts the web server
