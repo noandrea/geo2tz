@@ -65,8 +65,10 @@ func initConfig() {
 
 	// If a config file is found, read it in, else use the defaults
 	if err := viper.ReadInConfig(); err == nil {
-		viper.Unmarshal(&settings)
-		server.Validate(&settings)
+		err := viper.Unmarshal(&settings)
+		if err != nil {
+			log.Fatal("Error parsing settings file", err)
+		}
 		log.Println("Using config file at ", viper.ConfigFileUsed())
 	} else {
 		switch err.(type) {
