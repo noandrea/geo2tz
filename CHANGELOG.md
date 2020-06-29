@@ -2,6 +2,16 @@
 ## [Unreleased]
 
 
+<a name="0.2.2"></a>
+## [0.2.2] - 2020-06-29
+### Build
+- add deepsource, move to noandrea org on docker hub
+
+### Fix
+- **deepsource:** add error handling
+- **deepsource:** simplify comparison
+
+
 <a name="0.2.1"></a>
 ## [0.2.1] - 2020-05-17
 ### Doc
@@ -39,7 +49,8 @@
 - add tests for coordinate parsing
 
 
-[Unreleased]: https://github.com/noandrea/geo2tz/compare/0.2.1...HEAD
+[Unreleased]: https://github.com/noandrea/geo2tz/compare/0.2.2...HEAD
+[0.2.2]: https://github.com/noandrea/geo2tz/compare/0.2.1...0.2.2
 [0.2.1]: https://github.com/noandrea/geo2tz/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/noandrea/geo2tz/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/noandrea/geo2tz/compare/0.0.0...0.1.0
