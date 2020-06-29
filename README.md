@@ -6,7 +6,7 @@ A self-host-able service to get the timezone given geo coordinates (lat/long)
 
 It does it by exposing the library from [github.com/evanoberholster/timezoneLookup](https://github.com/evanoberholster/timezoneLookup)
 
-Tz data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder)
+Tz data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder) (release [2020a](https://github.com/evansiroky/timezone-boundary-builder/releases/tag/2020a))
 
 ## Motivations
 
@@ -24,7 +24,7 @@ GET /tz/${LATITUDE}/${LONGITUDE}
 
 that returns a json reply (`http/200`):
 
-```json
+```
 {
     "tz": "${TIMEZONE}",
     "coords": {
@@ -49,7 +49,7 @@ Geo2Tz supports a basic token authorization mechanism, if the configuration valu
 For example running the service with:
 
 ```sh
-docker run -p 2004:2004 -e GEO2TZ_WEB_AUTH_TOKEN_VALUE=secret apeunit/geo2tz
+docker run -p 2004:2004 -e GEO2TZ_WEB_AUTH_TOKEN_VALUE=secret noandrea/geo2tz
 ```
 
 will enable authorization:
@@ -66,13 +66,13 @@ will enable authorization:
 
 ## Docker
 
-Docker image is available at [apeunit/geo2tzt](https://hub.docker.com/repository/docker/apeunit/geo2tz)
+Docker image is available at [noandrea/geo2tzt](https://hub.docker.com/repository/docker/noandrea/geo2tz)
 
 ```sh
-docker run -p 2004:2004 apeunit/geo2tz
+docker run -p 2004:2004 noandrea/geo2tz
 ```
 
-The image is built on scratch, the image size is ~76mb:
+The image is built on [scratch](https://hub.docker.com/_/scratch), the image size is ~76mb:
 
 - ~11mb the application
 - ~62mb the tz data
@@ -86,7 +86,7 @@ version: '3'
 services:
   geo2tz:
     container_name: geo2tz
-    image: apeunit/geo2tz:latest
+    image: noandrea/geo2tz:latest
     ports:
     - 2004:2004
     # uncomment to enable authorization via request token
@@ -130,7 +130,7 @@ spec:
         #  value: "t" # default value
         #- name: GEO2TZ_WEB_LISTEN_ADDRESS
         #  value: ":2004" # default value
-        image: apeunit/geo2tz:latest
+        image: noandrea/geo2tz:latest
         imagePullPolicy: Always
         name: geo2tz
         ports:

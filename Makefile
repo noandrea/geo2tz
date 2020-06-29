@@ -5,7 +5,7 @@ APP=geo2tz
 # build output folder
 OUTPUTFOLDER = dist
 # docker image
-DOCKER_REGISTRY = apeunit
+DOCKER_REGISTRY = noandrea
 DOCKER_IMAGE = geo2tz
 DOCKER_TAG = $(GIT_DESCR)
 # build paramters
