@@ -65,6 +65,7 @@ func Start(config ConfigSchema) (err error) {
 
 	// echo start
 	e = echo.New()
+	e.HideBanner = true
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
