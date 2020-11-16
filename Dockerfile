@@ -12,7 +12,7 @@ WORKDIR /tz
 RUN go get github.com/evanoberholster/timezoneLookup
 ## && go build github.com/evanoberholster/timezoneLookup/cmd/timezone.go
 # download the location file 
-RUN curl -LO https://github.com/evansiroky/timezone-boundary-builder/releases/download/2020a/timezones-with-oceans.geojson.zip
+RUN curl -LO https://github.com/evansiroky/timezone-boundary-builder/releases/download/2020d/timezones-with-oceans.geojson.zip
 RUN unzip timezones-with-oceans.geojson.zip 
 # build the database
 RUN go run /go/src/github.com/evanoberholster/timezoneLookup/cmd/timezone.go -json "/tz/dist/combined-with-oceans.json" -db=/timezone -type=boltdb
