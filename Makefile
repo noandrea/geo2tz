@@ -4,6 +4,7 @@ GIT_DESCR = $(shell git describe --tags --always)
 APP=geo2tz
 # build output folder
 OUTPUTFOLDER = dist
+RELEASEFOLDER = release
 # docker image
 DOCKER_REGISTRY = docker.pkg.github.com/noandrea/geo2tz
 DOCKER_IMAGE = geo2tz
@@ -109,3 +110,11 @@ release-minor: _release-minor git-release
 _release-major:
 	$(eval GIT_DESCR = $(shell git describe --tags | awk -F '("|")' '{ print($$1)}' | awk -F. '{$$(NF-2) = $$(NF-2) + 1;} 1' | sed 's/ /./g' | awk -F. '{$$(NF-1) = 0;} 1' | sed 's/ /./g' | awk -F. '{$$(NF) = 0;} 1' | sed 's/ /./g' ))
 release-major: _release-major git-release 
+
+gh-publish-release: clean build
+	@echo publish release
+	mkdir -p $(RELEASEFOLDER)
+	zip -rmT $(RELEASEFOLDER)/$(APP)-$(GIT_DESCR).zip $(OUTPUTFOLDER)/
+	sha256sum $(RELEASEFOLDER)/$(APP)-$(GIT_DESCR).zip | tee $(RELEASEFOLDER)/$(APP)-$(GIT_DESCR).zip.checksum
+	gh release create $(GIT_DESCR) $(RELEASEFOLDER)/* -t v$(GIT_DESCR) -F CHANGELOG.md
+	@echo done

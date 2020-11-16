@@ -2,6 +2,22 @@
 ## [Unreleased]
 
 
+<a name="0.3.0"></a>
+## [0.3.0] - 2020-11-16
+### Chore
+- move to github packages (from docker hub)
+- set go version to 1.15
+
+### Feat
+- update tzdata to v2020d
+
+### Fix
+- linter warnings
+
+### Misc
+- hide echo startup banner
+
+
 <a name="0.2.2"></a>
 ## [0.2.2] - 2020-06-29
 ### Build
@@ -49,7 +65,8 @@
 - add tests for coordinate parsing
 
 
-[Unreleased]: https://github.com/noandrea/geo2tz/compare/0.2.2...HEAD
+[Unreleased]: https://github.com/noandrea/geo2tz/compare/0.3.0...HEAD
+[0.3.0]: https://github.com/noandrea/geo2tz/compare/0.2.2...0.3.0
 [0.2.2]: https://github.com/noandrea/geo2tz/compare/0.2.1...0.2.2
 [0.2.1]: https://github.com/noandrea/geo2tz/compare/0.2.0...0.2.1
 [0.2.0]: https://github.com/noandrea/geo2tz/compare/0.1.0...0.2.0
