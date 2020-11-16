@@ -1,7 +1,7 @@
 branches:
   only:
-  - master
-  - develop
+    - master
+    - develop
 
 language: go
 go:
@@ -13,7 +13,8 @@ env:
     - DISTILL_SERVER_PORT=1804
 
 install:
-  - go get -u golang.org/x/lint/golint 
+  - go get -u golang.org/x/lint/golint
+  - go get -u honnef.co/go/tools/cmd/staticcheck
 
 script:
   - make lint
