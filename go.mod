@@ -1,6 +1,6 @@
 module github.com/noandrea/geo2tz
 
-go 1.13
+go 1.15
 
 require (
 	github.com/evanoberholster/timezoneLookup v0.0.0-20190926092755-58040732034d
