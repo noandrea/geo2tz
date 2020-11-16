@@ -2,6 +2,12 @@
 ## [Unreleased]
 
 
+<a name="0.3.1"></a>
+## [0.3.1] - 2020-11-16
+### Fix
+- docker-image and release process fix
+
+
 <a name="0.3.0"></a>
 ## [0.3.0] - 2020-11-16
 ### Chore
@@ -65,7 +71,8 @@
 - add tests for coordinate parsing
 
 
-[Unreleased]: https://github.com/noandrea/geo2tz/compare/0.3.0...HEAD
+[Unreleased]: https://github.com/noandrea/geo2tz/compare/0.3.1...HEAD
+[0.3.1]: https://github.com/noandrea/geo2tz/compare/0.3.0...0.3.1
 [0.3.0]: https://github.com/noandrea/geo2tz/compare/0.2.2...0.3.0
 [0.2.2]: https://github.com/noandrea/geo2tz/compare/0.2.1...0.2.2
 [0.2.1]: https://github.com/noandrea/geo2tz/compare/0.2.0...0.2.1
