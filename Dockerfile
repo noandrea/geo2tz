@@ -15,7 +15,7 @@ RUN go get github.com/evanoberholster/timezoneLookup
 RUN curl -LO https://github.com/evansiroky/timezone-boundary-builder/releases/download/2020d/timezones-with-oceans.geojson.zip
 RUN unzip timezones-with-oceans.geojson.zip 
 # build the database
-RUN go run /go/src/github.com/evanoberholster/timezoneLookup/cmd/timezone.go -json "/tz/dist/combined-with-oceans.json" -db=/timezone -type=boltdb
+RUN go run /go/src/github.com/evanoberholster/timezoneLookup/cmd/timezone.go -json "/tz/combined-with-oceans.json" -db=/timezone -type=boltdb
 # checkout the project 
 WORKDIR /builder
 COPY . .
