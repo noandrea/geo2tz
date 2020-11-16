@@ -6,7 +6,7 @@ A self-host-able service to get the timezone given geo coordinates (lat/long)
 
 It does it by exposing the library from [github.com/evanoberholster/timezoneLookup](https://github.com/evanoberholster/timezoneLookup)
 
-Tz data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder) (release [2020a](https://github.com/evansiroky/timezone-boundary-builder/releases/tag/2020a))
+Tz data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder) (release [2020d](https://github.com/evansiroky/timezone-boundary-builder/releases/tag/2020d))
 
 ## Motivations
 
@@ -66,10 +66,10 @@ will enable authorization:
 
 ## Docker
 
-Docker image is available at [noandrea/geo2tzt](https://hub.docker.com/repository/docker/noandrea/geo2tz)
+Docker image is available at [geo2tzt](https://github.com/noandrea/geo2tz/packages)
 
 ```sh
-docker run -p 2004:2004 noandrea/geo2tz
+docker run -p 2004:2004 github.com/noandrea/geo2tz/geo2tz
 ```
 
 The image is built on [scratch](https://hub.docker.com/_/scratch), the image size is ~76mb:
@@ -86,7 +86,7 @@ version: '3'
 services:
   geo2tz:
     container_name: geo2tz
-    image: noandrea/geo2tz:latest
+    image: github.com/noandrea/geo2tz/geo2tz
     ports:
     - 2004:2004
     # uncomment to enable authorization via request token
@@ -130,7 +130,7 @@ spec:
         #  value: "t" # default value
         #- name: GEO2TZ_WEB_LISTEN_ADDRESS
         #  value: ":2004" # default value
-        image: noandrea/geo2tz:latest
+        image: github.com/noandrea/geo2tz/geo2tz:latest
         imagePullPolicy: Always
         name: geo2tz
         ports:

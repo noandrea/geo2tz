@@ -5,7 +5,7 @@ APP=geo2tz
 # build output folder
 OUTPUTFOLDER = dist
 # docker image
-DOCKER_REGISTRY = noandrea
+DOCKER_REGISTRY = docker.pkg.github.com/noandrea/geo2tz
 DOCKER_IMAGE = geo2tz
 DOCKER_TAG = $(GIT_DESCR)
 # build paramters
@@ -46,7 +46,10 @@ bench-all:
 lint: lint-all
 
 lint-all:
-	@golint -set_exit_status $(GOPACKAGES)
+	@echo running linters
+	staticcheck $(GOPACKAGES)
+	golint -set_exit_status $(GOPACKAGES)
+	@echo done
 
 clean:
 	@echo remove $(OUTPUTFOLDER) folder
@@ -90,9 +93,8 @@ git-release:
 	git tag $(GIT_DESCR)
 	git-chglog --output CHANGELOG.md
 	git tag $(GIT_DESCR) --delete
-	git add CHANGELOG.md && git commit -m "v$(GIT_DESCR)" -m "Changelog: https://github.com/noandrea/valis/blob/master/CHANGELOG.md"
-	git tag $(GIT_DESCR)
-	git push --tags
+	git add CHANGELOG.md && git commit -m "v$(GIT_DESCR)" -m "Changelog: https://github.com/noandrea/$(APP)/blob/master/CHANGELOG.md"
+	git tag -s -a "$(GIT_DESCR)" -m "Changelog: https://github.com/noandrea/$(APP)/blob/master/CHANGELOG.md"
 	@echo release complete
 
 
