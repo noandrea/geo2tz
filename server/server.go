@@ -107,7 +107,7 @@ func Start(config ConfigSchema) (err error) {
 // parseCoordinate parse a string into a coordinate
 func parseCoordinate(val, side string) (float32, error) {
 	if len(strings.TrimSpace(val)) == 0 {
-		return 0, fmt.Errorf("Empty coordinate value")
+		return 0, fmt.Errorf("empty coordinates value")
 	}
 	c, err := strconv.ParseFloat(val, 32)
 	if err != nil {
