@@ -77,6 +77,21 @@ The image is built on [scratch](https://hub.docker.com/_/scratch), the image siz
 - ~11mb the application
 - ~62mb the tz data
 
+If you want to use the in memory shapefile (which is faster than the default boltDB):
+1. Crate a `config.yaml` file, with the following content:
+```
+tz:
+    database_type: memory
+    database_name: timezone
+    snappy: true
+    download_tz_data_url: https://api.github.com/repos/evansiroky/timezone-boundary-builder/releases/latest
+    download_tz_filename: timezones-with-oceans.geojson.zip
+```
+2. Bind the `config.yaml` to the docker image with the following command (note config file should be in the same dir where the docker command is executed, else change the path in the bind arg of the command):
+```sh
+sudo docker run -it --mount type=bind,source=`pwd`/config.yaml,target=/etc/geo2tz/config.yaml -p 2004:2004 noandrea/geo2tz
+```
+
 ## Docker compose
 
 Docker compose yaml example
