@@ -15,7 +15,10 @@ RUN go get github.com/evanoberholster/timezoneLookup
 RUN curl -LO https://github.com/evansiroky/timezone-boundary-builder/releases/download/2020d/timezones-with-oceans.geojson.zip
 RUN unzip timezones-with-oceans.geojson.zip 
 # build the database
-RUN go run /go/src/github.com/evanoberholster/timezoneLookup/cmd/timezone.go -json "/tz/combined-with-oceans.json" -db=/timezone -type=boltdb
+# build timezone.snap.db
+RUN go run go/src/github.com/evanoberholster/timezoneLookup/cmd/timezone.go -json "/tz/combined-with-oceans.json" -db=/timezone -type=boltdb
+# build timezone.snap.json
+RUN go run go/src/github.com/evanoberholster/timezoneLookup/cmd/timezone.go -json "/tz/combined-with-oceans.json" -db=/timezone -type=memory
 # checkout the project 
 WORKDIR /builder
 COPY . .
@@ -30,6 +33,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /geo2tz -ldflags="-s -w -e
 FROM scratch
 # Copy our static executable.
 COPY --from=builder /timezone.snap.db /
+COPY --from=builder /timezone.snap.json /
 COPY --from=builder /geo2tz /
 # Copy the temlates folder
 # COPY templates /templates
