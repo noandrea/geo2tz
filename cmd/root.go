@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/noandrea/geo2tz/server"
@@ -25,12 +24,9 @@ var rootCmd = &cobra.Command{
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute(v string) {
+func Execute(v string) error {
 	rootCmd.Version = v
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	return rootCmd.Execute()
 }
 
 func init() {
@@ -67,6 +63,7 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		err := viper.Unmarshal(&settings)
 		if err != nil {
+			// skipcq
 			log.Fatal("Error parsing settings file", err)
 		}
 		log.Println("Using config file at ", viper.ConfigFileUsed())
