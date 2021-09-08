@@ -42,7 +42,7 @@ func isEq(expectedTokenHash []byte, actualToken string) bool {
 // Start starts the web server
 func Start(config ConfigSchema) (err error) {
 	// open the database
-	tz, err := timezoneLookup.LoadTimezones(
+	tz, err = timezoneLookup.LoadTimezones(
 		timezoneLookup.Config{
 			DatabaseType: config.Tz.DatabaseType, // memory or boltdb
 			DatabaseName: config.Tz.DatabaseName, // Name without suffix

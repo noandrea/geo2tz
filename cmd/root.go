@@ -64,14 +64,12 @@ func initConfig() {
 		err := viper.Unmarshal(&settings)
 		if err != nil {
 			// skipcq
-			log.Fatal("Error parsing settings file", err)
+			log.Fatal("error parsing settings file", err)
 		}
-		log.Println("Using config file at ", viper.ConfigFileUsed())
-	} else {
-		switch err.(type) {
-		case viper.ConfigFileNotFoundError:
-			viper.Unmarshal(&settings)
-		}
+		log.Println("using config file at ", viper.ConfigFileUsed())
+	}
+	if err := viper.Unmarshal(&settings); err != nil {
+		log.Fatal("error unmarshalling settings: ", err)
 	}
 	// make the version available via settings
 	settings.RuntimeVersion = rootCmd.Version
