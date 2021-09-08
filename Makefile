@@ -39,6 +39,9 @@ test: test-all
 test-all:
 	@go test -v $(GOPACKAGES) -coverprofile .testCoverage.txt
 
+test-ci:
+	go test -coverprofile=coverage.txt -covermode=atomic -race -mod=readonly $(GOPACKAGES)
+
 bench: bench-all
 
 bench-all:
