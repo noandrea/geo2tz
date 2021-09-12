@@ -1,0 +1,12 @@
+repos:
+- repo: https://github.com/golangci/golangci-lint
+  rev: v1.40.1
+  hooks:
+    - id: golangci-lint
+# commit msg check
+- repo: https://github.com/compilerla/conventional-pre-commit
+  rev: v1.0.0
+  hooks:
+    - id: conventional-pre-commit
+      stages: [commit-msg]
+      args: [] # optional: list of Conventional Commits types to allow

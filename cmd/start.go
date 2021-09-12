@@ -59,6 +59,8 @@ func start(cmd *cobra.Command, args []string) {
 	quit := make(chan os.Signal, 2)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	server.Teardown()
+	if err := server.Teardown(); err != nil {
+		log.Error("error stopping server: ", err)
+	}
 	fmt.Print("Goodbye")
 }

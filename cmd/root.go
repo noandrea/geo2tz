@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/noandrea/geo2tz/server"
@@ -25,12 +24,9 @@ var rootCmd = &cobra.Command{
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute(v string) {
+func Execute(v string) error {
 	rootCmd.Version = v
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	return rootCmd.Execute()
 }
 
 func init() {
@@ -67,14 +63,13 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		err := viper.Unmarshal(&settings)
 		if err != nil {
-			log.Fatal("Error parsing settings file", err)
+			// skipcq
+			log.Fatal("error parsing settings file", err)
 		}
-		log.Println("Using config file at ", viper.ConfigFileUsed())
-	} else {
-		switch err.(type) {
-		case viper.ConfigFileNotFoundError:
-			viper.Unmarshal(&settings)
-		}
+		log.Println("using config file at ", viper.ConfigFileUsed())
+	}
+	if err := viper.Unmarshal(&settings); err != nil {
+		log.Fatal("error unmarshalling settings: ", err)
 	}
 	// make the version available via settings
 	settings.RuntimeVersion = rootCmd.Version

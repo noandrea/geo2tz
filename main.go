@@ -21,11 +21,20 @@ THE SOFTWARE.
 */
 package main
 
-import "github.com/noandrea/geo2tz/cmd"
+import (
+	"fmt"
+	"os"
+
+	"github.com/noandrea/geo2tz/cmd"
+)
 
 // Version hold the version of the program
 var Version = "0.0.0"
 
 func main() {
-	cmd.Execute(Version)
+	if err := cmd.Execute(Version); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 }

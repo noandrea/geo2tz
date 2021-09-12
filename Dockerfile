@@ -6,19 +6,11 @@ ARG DOCKER_TAG=0.0.0
 # Install git.
 # Git is required for fetching the dependencies.
 RUN apk update && apk add --no-cache git curl unzip
-# build the location db
+# download tz data
 WORKDIR /tz
-# clone the timezoneLookup repo
-RUN go get github.com/evanoberholster/timezoneLookup
-## && go build github.com/evanoberholster/timezoneLookup/cmd/timezone.go
 # download the location file 
 RUN curl -LO https://github.com/evansiroky/timezone-boundary-builder/releases/download/2020d/timezones-with-oceans.geojson.zip
 RUN unzip timezones-with-oceans.geojson.zip 
-# build the database
-# build timezone.snap.db
-RUN go run go/src/github.com/evanoberholster/timezoneLookup/cmd/timezone.go -json "/tz/combined-with-oceans.json" -db=/timezone -type=boltdb
-# build timezone.snap.json
-RUN go run go/src/github.com/evanoberholster/timezoneLookup/cmd/timezone.go -json "/tz/combined-with-oceans.json" -db=/timezone -type=memory
 # checkout the project 
 WORKDIR /builder
 COPY . .
@@ -27,6 +19,10 @@ COPY . .
 RUN go get -d -v
 # Build the binary.
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /geo2tz -ldflags="-s -w -extldflags \"-static\" -X main.Version=$DOCKER_TAG"
+# build the database
+RUN /geo2tz build --json "/tz/combined-with-oceans.json" --db=/timezone --type=boltdb
+# build timezone.snap.json
+RUN /geo2tz build --json "/tz/combined-with-oceans.json" --db=/timezone --type=memory
 ############################
 # STEP 2 build a small image
 ############################
