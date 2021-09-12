@@ -2,6 +2,16 @@
 ## [Unreleased]
 
 
+<a name="0.4.0"></a>
+## [0.4.0] - 2021-09-13
+### Feat
+- add support for memory shapefile
+- add support for memory shapefile
+
+### Fix
+- **ci:** install linter in CI
+
+
 <a name="0.3.1"></a>
 ## [0.3.1] - 2020-11-16
 ### Fix
@@ -71,7 +81,8 @@
 - add tests for coordinate parsing
 
 
-[Unreleased]: https://github.com/noandrea/geo2tz/compare/0.3.1...HEAD
+[Unreleased]: https://github.com/noandrea/geo2tz/compare/0.4.0...HEAD
+[0.4.0]: https://github.com/noandrea/geo2tz/compare/0.3.1...0.4.0
 [0.3.1]: https://github.com/noandrea/geo2tz/compare/0.3.0...0.3.1
 [0.3.0]: https://github.com/noandrea/geo2tz/compare/0.2.2...0.3.0
 [0.2.2]: https://github.com/noandrea/geo2tz/compare/0.2.1...0.2.2
