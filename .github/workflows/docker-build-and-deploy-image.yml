@@ -1,7 +1,5 @@
 name: Create and publish a Docker image
 on:
-  tags:
-      - 'v*'
   push:
     paths-ignore:
       - ".gitignore"
