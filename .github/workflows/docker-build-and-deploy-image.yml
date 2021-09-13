@@ -1,14 +1,18 @@
 name: Create and publish a Docker image
 on:
-  release:
-    types: [published]
+  tags:
+      - 'v*'
   push:
     paths-ignore:
       - ".gitignore"
       - "README.md"
       - "LICENSE"
       - "docs"
-    branches: [master]
+      - "Makefile"
+    branches: 
+      - "master"
+    tags:
+      - "v*"
   workflow_dispatch:
 
 env:
@@ -39,7 +43,8 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=edge,enable=true,priority=700,prefix=,suffix=,branch=$repo.default_branch
+            type=edge,branch=$repo.default_branch
+            type=semver,pattern={{version}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
