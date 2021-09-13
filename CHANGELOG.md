@@ -2,6 +2,12 @@
 ## [Unreleased]
 
 
+<a name="v0.4.2"></a>
+## [v0.4.2] - 2021-09-13
+### Build
+- add multiple automated build options for docker
+
+
 <a name="0.4.1"></a>
 ## [0.4.1] - 2021-09-13
 ### Build
@@ -93,7 +99,8 @@
 - add tests for coordinate parsing
 
 
-[Unreleased]: https://github.com/noandrea/geo2tz/compare/0.4.1...HEAD
+[Unreleased]: https://github.com/noandrea/geo2tz/compare/v0.4.2...HEAD
+[v0.4.2]: https://github.com/noandrea/geo2tz/compare/0.4.1...v0.4.2
 [0.4.1]: https://github.com/noandrea/geo2tz/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/noandrea/geo2tz/compare/0.3.1...0.4.0
 [0.3.1]: https://github.com/noandrea/geo2tz/compare/0.3.0...0.3.1
