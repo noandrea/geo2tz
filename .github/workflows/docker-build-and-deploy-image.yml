@@ -1,12 +1,14 @@
 name: Create and publish a Docker image
 on:
+  release:
+    types: [published]
   push:
     paths-ignore:
       - ".gitignore"
       - "README.md"
       - "LICENSE"
       - "docs"
-    branches: [main]
+    branches: [master]
   workflow_dispatch:
 
 env:
