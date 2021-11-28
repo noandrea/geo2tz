@@ -64,6 +64,16 @@ will enable authorization:
 {"coords":{"lat":41.902782,"lon":12.496365},"tz":"Europe/Rome"}
 ```
 
+## Configuration
+
+geo2tz can be configured using environment variables. The following options are available:
+
+- `GEO2TZ_WEB_AUTH_TOKEN_VALUE`: set the authorization token value (default: empty)
+- `GEO2TZ_WEB_AUTH_TOKEN_PARAM_NAME`: set the parameter name for the authorization token (default: `t`)
+- `GEO2TZ_WEB_LISTEN_ADDRESS`: set the listening address (default: `:2004`)
+- `GEO2TZ_WEB_RATE_LIMIT`: configure the rest endpoint rate limit (default: `0` disabled)
+
+
 ## Docker
 
 Docker image is available at [geo2tzt](https://github.com/noandrea/geo2tz/packages)
@@ -72,25 +82,8 @@ Docker image is available at [geo2tzt](https://github.com/noandrea/geo2tz/packag
 docker run -p 2004:2004 github.com/noandrea/geo2tz
 ```
 
-The image is built on [scratch](https://hub.docker.com/_/scratch), the image size is ~76mb:
+The image is built on [scratch](https://hub.docker.com/_/scratch), the image size is ~86mb:
 
-- ~11mb the application
-- ~62mb the tz data
-
-If you want to use the in memory shapefile (which is faster than the default boltDB):
-1. Crate a `config.yaml` file, with the following content:
-```
-tz:
-    database_type: memory
-    database_name: timezone
-    snappy: true
-    download_tz_data_url: https://api.github.com/repos/evansiroky/timezone-boundary-builder/releases/latest
-    download_tz_filename: timezones-with-oceans.geojson.zip
-```
-2. Bind the `config.yaml` to the docker image with the following command (note config file should be in the same dir where the docker command is executed, else change the path in the bind arg of the command):
-```sh
-sudo docker run -it --mount type=bind,source=`pwd`/config.yaml,target=/etc/geo2tz/config.yaml -p 2004:2004 noandrea/geo2tz
-```
 
 ## Docker compose
 
@@ -109,6 +102,7 @@ services:
     # - GEO2TZ_WEB_AUTH_TOKEN_VALUE=somerandomstringhere
     # - GEO2TZ_WEB_AUTH_TOKEN_PARAM_NAME=t
     # - GEO2TZ_WEB_LISTEN_ADDRESS=":2004"
+    # - GEO2TZ_WEB_RATE_LIMIT=4.0
 
 ```
 
@@ -145,6 +139,8 @@ spec:
         #  value: "t" # default value
         #- name: GEO2TZ_WEB_LISTEN_ADDRESS
         #  value: ":2004" # default value
+        #- name: GEO2TZ_WEB_RATE_LIMIT
+        #  value: 0 # default value
         image: github.com/noandrea/geo2tz:latest
         imagePullPolicy: Always
         name: geo2tz

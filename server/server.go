@@ -64,10 +64,10 @@ func Start(config ConfigSchema) (err error) {
 	hashedToken := hash(config.Web.AuthTokenValue)
 	authEnabled := false
 	if len(config.Web.AuthTokenValue) > 0 {
-		log.Info("Authorization enabled")
+		log.Info("authorization enabled, using request parameter:", config.Web.AuthTokenParamName)
 		authEnabled = true
 	} else {
-		log.Info("Authorization disabled")
+		log.Info("authorization disabled")
 	}
 
 	// echo start
@@ -77,7 +77,10 @@ func Start(config ConfigSchema) (err error) {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	if config.Web.RateLimit > 0 {
+		log.Infoln("rate limit enabled:", config.Web.RateLimit)
 		e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(config.Web.RateLimit))))
+	} else {
+		log.Infoln("rate limit disabled")
 	}
 
 	// logger
