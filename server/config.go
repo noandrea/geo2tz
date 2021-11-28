@@ -17,9 +17,10 @@ type TzSchema struct {
 
 // WebSchema configuration
 type WebSchema struct {
-	ListenAddress      string `mapstructure:"listen_address,omitempty"`
-	AuthTokenValue     string `mapstructure:"auth_token_value,omitempty"`
-	AuthTokenParamName string `mapstructure:"auth_token_param_name,omitempty"`
+	ListenAddress      string  `mapstructure:"listen_address,omitempty"`
+	AuthTokenValue     string  `mapstructure:"auth_token_value,omitempty"`
+	AuthTokenParamName string  `mapstructure:"auth_token_param_name,omitempty"`
+	RateLimit          float64 `mapstructure:"rate_limit,omitempty"`
 }
 
 // ConfigSchema main configuration for the news room
@@ -43,6 +44,7 @@ func Defaults() {
 	viper.SetDefault("web.listen_address", ":2004")
 	viper.SetDefault("web.auth_token_value", "") // GEO2TZ_WEB_AUTH_TOKEN_VALUE="ciao"
 	viper.SetDefault("web.auth_token_param_name", "t")
+	viper.SetDefault("web.rate_limit", 0)
 
 }
 

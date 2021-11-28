@@ -14,9 +14,10 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/blake2b"
+	"golang.org/x/time/rate"
 )
 
-// constant valuses for lat / lon
+// constant values for lat / lon
 const (
 	Latitude      = "lat"
 	Longitude     = "lon"
@@ -75,6 +76,10 @@ func Start(config ConfigSchema) (err error) {
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	if config.Web.RateLimit > 0 {
+		e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(rate.Limit(config.Web.RateLimit))))
+	}
+
 	// logger
 	e.GET("/tz/:lat/:lon", func(c echo.Context) (err error) {
 		// token verification
@@ -96,8 +101,8 @@ func Start(config ConfigSchema) (err error) {
 		}
 		// build coordinates object
 		coords := timezoneLookup.Coord{
-			Lat: float32(lat),
-			Lon: float32(lon),
+			Lat: lat,
+			Lon: lon,
 		}
 		// query the coordinates
 		res, err := tz.Query(coords)
