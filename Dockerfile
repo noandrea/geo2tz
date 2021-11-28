@@ -20,15 +20,15 @@ RUN go get -d -v
 # Build the binary.
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /geo2tz -ldflags="-s -w -extldflags \"-static\" -X main.Version=$DOCKER_TAG"
 # build the database
-RUN /geo2tz build --json "/tz/combined-with-oceans.json" --db=/timezone --type=boltdb
-# build timezone.snap.json
+# RUN /geo2tz build --json "/tz/combined-with-oceans.json" --db=/timezone --type=boltdb
+# build the memory database timezone.snap.json
 RUN /geo2tz build --json "/tz/combined-with-oceans.json" --db=/timezone --type=memory
 ############################
 # STEP 2 build a small image
 ############################
 FROM scratch
 # Copy our static executable.
-COPY --from=builder /timezone.snap.db /
+# COPY --from=builder /timezone.snap.db /
 COPY --from=builder /timezone.snap.json /
 COPY --from=builder /geo2tz /
 # Copy the temlates folder

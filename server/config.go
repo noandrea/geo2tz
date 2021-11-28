@@ -33,7 +33,7 @@ type ConfigSchema struct {
 // Defaults configure defaults
 func Defaults() {
 	// tz defaults
-	viper.SetDefault("tz.database_type", "boltdb")
+	viper.SetDefault("tz.database_type", "memory")
 	viper.SetDefault("tz.database_name", "timezone")
 	viper.SetDefault("tz.snappy", true)
 	viper.SetDefault("tz.encoding", "msgpack")
