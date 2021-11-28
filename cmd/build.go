@@ -16,9 +16,8 @@ limitations under the License.
 package cmd
 
 import (
-	"log"
-
 	"github.com/evanoberholster/timezoneLookup"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -50,29 +49,33 @@ func init() {
 
 func build(cmd *cobra.Command, args []string) {
 	if dbFilename == "" || jsonFilename == "" {
-		log.Printf("Options:\n\t -snappy=true\t Use Snappy compression\n\t -json=filename\t GEOJSON filename \n\t -db=filename\t Database destination\n\t -type=boltdb\t Type of Storage (boltdb or memory) ")
-	} else {
-		var tz timezoneLookup.TimezoneInterface
-		if storageType == "memory" {
-			tz = timezoneLookup.MemoryStorage(snappy, dbFilename)
-		} else if storageType == "boltdb" {
-			tz = timezoneLookup.BoltdbStorage(snappy, dbFilename, encoding)
-		} else {
-			log.Println("\"-db\" No database type specified")
-			return
-		}
-
-		if jsonFilename != "" {
-			err := tz.CreateTimezones(jsonFilename)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-		} else {
-			log.Println("\"-json\" No GeoJSON source file specified")
-			return
-		}
-
-		tz.Close()
+		log.Println("Options:\n\t -snappy=true\t Use Snappy compression\n\t -json=filename\t GEOJSON filename \n\t -db=filename\t Database destination\n\t -type=boltdb\t Type of Storage (boltdb or memory) ")
+		return
 	}
+	var tz timezoneLookup.TimezoneInterface
+	if storageType == "memory" {
+		tz = timezoneLookup.MemoryStorage(snappy, dbFilename)
+	} else if storageType == "boltdb" {
+		encodingTz, err := timezoneLookup.EncodingFromString(encoding)
+		if err != nil {
+			log.Errorln("invalid encoding", err)
+			return
+		}
+		tz = timezoneLookup.BoltdbStorage(snappy, dbFilename, encodingTz)
+	} else {
+		log.Println("\"-db\" No database type specified")
+		return
+	}
+
+	if jsonFilename != "" {
+		err := tz.CreateTimezones(jsonFilename)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	} else {
+		log.Println("\"-json\" No GeoJSON source file specified")
+		return
+	}
+	tz.Close()
 }

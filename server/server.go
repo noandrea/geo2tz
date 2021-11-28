@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/evanoberholster/timezoneLookup"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/blake2b"
 )
@@ -41,15 +41,21 @@ func isEq(expectedTokenHash []byte, actualToken string) bool {
 
 // Start starts the web server
 func Start(config ConfigSchema) (err error) {
+	encoding, err := timezoneLookup.EncodingFromString(config.Tz.Encoding)
+	if err != nil {
+		log.Errorln("invalid encoding:", err)
+		return
+	}
 	// open the database
 	tz, err = timezoneLookup.LoadTimezones(
 		timezoneLookup.Config{
 			DatabaseType: config.Tz.DatabaseType, // memory or boltdb
 			DatabaseName: config.Tz.DatabaseName, // Name without suffix
 			Snappy:       config.Tz.Snappy,
-			Encoding:     config.Tz.Encoding, // json or msgpack
+			Encoding:     encoding, // json or msgpack
 		})
 	if err != nil {
+		log.Errorln("failed to load timezones:", err)
 		return
 	}
 
