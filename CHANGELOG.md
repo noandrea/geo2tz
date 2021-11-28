@@ -2,6 +2,19 @@
 ## [Unreleased]
 
 
+<a name="v1.0.0"></a>
+## [v1.0.0] - 2021-11-28
+### Chore
+- upgrade go version and dependencies
+
+### Docs
+- update docs
+
+### Feat
+- use in memory db instead of bolt
+- add server request rate limit
+
+
 <a name="v0.4.2"></a>
 ## [v0.4.2] - 2021-09-13
 ### Build
@@ -99,7 +112,8 @@
 - add tests for coordinate parsing
 
 
-[Unreleased]: https://github.com/noandrea/geo2tz/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/noandrea/geo2tz/compare/v1.0.0...HEAD
+[v1.0.0]: https://github.com/noandrea/geo2tz/compare/v0.4.2...v1.0.0
 [v0.4.2]: https://github.com/noandrea/geo2tz/compare/0.4.1...v0.4.2
 [0.4.1]: https://github.com/noandrea/geo2tz/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/noandrea/geo2tz/compare/0.3.1...0.4.0
