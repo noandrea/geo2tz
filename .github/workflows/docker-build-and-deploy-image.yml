@@ -8,7 +8,7 @@ on:
       - "docs"
       - "Makefile"
     branches: 
-      - "master"
+      - "main"
     tags:
       - "v*"
   workflow_dispatch:

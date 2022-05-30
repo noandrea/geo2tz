@@ -23,16 +23,16 @@ linters:
 
 linters-settings:
   unused:
-    go: "1.15"
+    go: "1.18"
   dupl:
     threshold: 100
   funlen:
     lines: 100
     statements: 50
   gci:
-    local-prefixes: github.com/allinbits/cosmos-cash
+    local-prefixes: github.com/noandrea/geo2tz
   goimports:
-    local-prefixes: github.com/allinbits/cosmos-cash
+    local-prefixes: github.com/noandrea/geo2tz
   goconst:
     min-len: 2
     min-occurrences: 2
