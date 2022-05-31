@@ -5,9 +5,10 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/noandrea/geo2tz/server"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+
+	"github.com/noandrea/geo2tz/server"
 )
 
 // startCmd represents the start command

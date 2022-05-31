@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/noandrea/geo2tz.svg?branch=master)](https://travis-ci.com/noandrea/geo2tz) [![GoDoc](https://godoc.org/github.com/noandrea/geo2tz?status.svg)](https://godoc.org/github.com/noandrea/geo2tz) [![Go Report Card](https://goreportcard.com/badge/github.com/noandrea/geo2tz)](https://goreportcard.com/report/github.com/noandrea/geo2tz)
 
-A self-host-able service to get the timezone given geo coordinates (lat/long)
+A self-host-able service to get the timezone given geo-coordinates (lat/long)
 
 It does it by exposing the library from [github.com/evanoberholster/timezoneLookup](https://github.com/evanoberholster/timezoneLookup)
 
@@ -10,19 +10,19 @@ Tz data comes from [github.com/evansiroky/timezone-boundary-builder](https://git
 
 ## Motivations
 
-Geo coordinates might be a sensible information to share in many context,
+Geo-coordinates might be sensitive information to share in any context,
 and I needed a self-hosted solution to ensure that coordinates where not leaked to 3rd party services.
 On another side this feature is nicely self contained and having one service to expose it spares the effort to bundle the tz database everywhere.
 
 ## API
 
-the services exposes only one API:
+the service exposes only one API:
 
 ```http
 GET /tz/${LATITUDE}/${LONGITUDE}
 ```
 
-that returns a json reply (`http/200`):
+that returns a JSON reply (`http/200`):
 
 ```
 {
@@ -44,9 +44,9 @@ or in case of errors (`http/4**`):
 
 ### Authorization
 
-Geo2Tz supports a basic token authorization mechanism, if the configuration value for `web.auth_token_value` is a non empty string, geo2tz will check the query parameter value to authorize incoming requests.
+Geo2Tz supports a basic token authorization mechanism, if the configuration value for `web.auth_token_value` is a non-empty string, geo2tz will check the query parameter value to authorize incoming requests.
 
-For example running the service with:
+For example, running the service with:
 
 ```sh
 docker run -p 2004:2004 -e GEO2TZ_WEB_AUTH_TOKEN_VALUE=secret noandrea/geo2tz
@@ -81,7 +81,6 @@ If you want to use the in memory shapefile (which is faster than the default bol
 1. Crate a `config.yaml` file, with the following content:
 ```
 tz:
-    database_type: memory
     database_name: timezone
     snappy: true
     download_tz_data_url: https://api.github.com/repos/evansiroky/timezone-boundary-builder/releases/latest

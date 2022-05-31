@@ -34,8 +34,6 @@ var (
 	snappy       bool
 	jsonFilename string
 	dbFilename   string
-	storageType  string
-	encoding     string
 )
 
 func init() {
@@ -43,25 +41,13 @@ func init() {
 
 	buildCmd.Flags().BoolVar(&snappy, "snappy", true, "Use Snappy compression (true/false)")
 	buildCmd.Flags().StringVar(&jsonFilename, "json", "combined-with-oceans.json", "GEOJSON Filename")
-	buildCmd.Flags().StringVar(&dbFilename, "db", "timezone", "Destination database filename")
-	buildCmd.Flags().StringVar(&storageType, "type", "boltdb", "Storage: boltdb or memory")
-	buildCmd.Flags().StringVar(&encoding, "encoding", "msgpack", "BoltDB encoding type: json or msgpack")
 }
 
 func build(cmd *cobra.Command, args []string) {
 	if dbFilename == "" || jsonFilename == "" {
 		log.Printf("Options:\n\t -snappy=true\t Use Snappy compression\n\t -json=filename\t GEOJSON filename \n\t -db=filename\t Database destination\n\t -type=boltdb\t Type of Storage (boltdb or memory) ")
 	} else {
-		var tz timezoneLookup.TimezoneInterface
-		if storageType == "memory" {
-			tz = timezoneLookup.MemoryStorage(snappy, dbFilename)
-		} else if storageType == "boltdb" {
-			tz = timezoneLookup.BoltdbStorage(snappy, dbFilename, encoding)
-		} else {
-			log.Println("\"-db\" No database type specified")
-			return
-		}
-
+		tz := timezoneLookup.MemoryStorage(snappy, dbFilename)
 		if jsonFilename != "" {
 			err := tz.CreateTimezones(jsonFilename)
 			if err != nil {

@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/evanoberholster/timezoneLookup"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/blake2b"
 )
@@ -44,10 +44,9 @@ func Start(config ConfigSchema) (err error) {
 	// open the database
 	tz, err = timezoneLookup.LoadTimezones(
 		timezoneLookup.Config{
-			DatabaseType: config.Tz.DatabaseType, // memory or boltdb
+			DatabaseType: "memory",               // memory or boltdb
 			DatabaseName: config.Tz.DatabaseName, // Name without suffix
 			Snappy:       config.Tz.Snappy,
-			Encoding:     config.Tz.Encoding, // json or msgpack
 		})
 	if err != nil {
 		return

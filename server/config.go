@@ -6,10 +6,8 @@ import (
 
 // TzSchema configuration
 type TzSchema struct {
-	DatabaseType       string `mapstructure:"database_type"`
 	DatabaseName       string `mapstructure:"database_name"`
 	Snappy             bool   `mapstructure:"snappy"`
-	Encoding           string `mapstructure:"encoding"`
 	DownloadTzData     bool   `mapstructure:"download_tz_data"`
 	DownloadTzDataURL  string `mapstructure:"download_tz_data_url"`
 	DownloadTzFilename string `mapstructure:"download_tz_filename"`
@@ -32,10 +30,8 @@ type ConfigSchema struct {
 // Defaults configure defaults
 func Defaults() {
 	// tz defaults
-	viper.SetDefault("tz.database_type", "boltdb")
 	viper.SetDefault("tz.database_name", "timezone")
 	viper.SetDefault("tz.snappy", true)
-	viper.SetDefault("tz.encoding", "msgpack")
 	viper.SetDefault("tz.download_tz_data", true)
 	viper.SetDefault("tz.download_tz_data_url", "https://api.github.com/repos/evansiroky/timezone-boundary-builder/releases/latest")
 	viper.SetDefault("tz.download_tz_filename", "timezones.geojson.zip")

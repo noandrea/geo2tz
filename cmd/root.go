@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/noandrea/geo2tz/server"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/noandrea/geo2tz/server"
 )
 
 var cfgFile string
