@@ -6,13 +6,13 @@ A self-host-able service to get the timezone given geo-coordinates (lat/long)
 
 It does it by exposing the library from [github.com/evanoberholster/timezoneLookup](https://github.com/evanoberholster/timezoneLookup)
 
-Tz data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder) (release [2020d](https://github.com/evansiroky/timezone-boundary-builder/releases/tag/2020d))
+Timezone data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder) (release [2020d](https://github.com/evansiroky/timezone-boundary-builder/releases/tag/2020d))
 
 ## Motivations
 
 Geo-coordinates might be sensitive information to share in any context,
-and I needed a self-hosted solution to ensure that coordinates where not leaked to 3rd party services.
-On another side this feature is nicely self contained and having one service to expose it spares the effort to bundle the tz database everywhere.
+and I needed a self-hosted solution to ensure that coordinates were not leaked to 3rd party services.
+On another side, this feature is nicely self-contained and having one service to expose it spares the effort to bundle the TZ database everywhere.
 
 ## API
 
@@ -77,23 +77,26 @@ The image is built on [scratch](https://hub.docker.com/_/scratch), the image siz
 - ~11mb the application
 - ~62mb the tz data
 
-If you want to use the in memory shapefile (which is faster than the default boltDB):
-1. Crate a `config.yaml` file, with the following content:
-```
+If you want to use the in-memory shapefile (which is faster than the default boltDB):
+
+1. Create a `config.yaml` file, with the following content:
+
+```yaml
 tz:
     database_name: timezone
-    snappy: true
     download_tz_data_url: https://api.github.com/repos/evansiroky/timezone-boundary-builder/releases/latest
     download_tz_filename: timezones-with-oceans.geojson.zip
 ```
+
 2. Bind the `config.yaml` to the docker image with the following command (note config file should be in the same dir where the docker command is executed, else change the path in the bind arg of the command):
+
 ```sh
 sudo docker run -it --mount type=bind,source=`pwd`/config.yaml,target=/etc/geo2tz/config.yaml -p 2004:2004 noandrea/geo2tz
 ```
 
 ## Docker compose
 
-Docker compose yaml example
+Docker compose YAML example
 
 ```yaml
 version: '3'
