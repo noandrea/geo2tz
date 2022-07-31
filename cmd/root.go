@@ -1,10 +1,9 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -44,10 +43,6 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if debug {
-		// Only log the warning severity or above.
-		log.SetLevel(log.DebugLevel)
-	}
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
@@ -65,7 +60,8 @@ func initConfig() {
 		err := viper.Unmarshal(&settings)
 		if err != nil {
 			// skipcq
-			log.Fatal("error parsing settings file", err)
+			log.Fatalln("error parsing settings file", err)
+
 		}
 		log.Println("using config file at ", viper.ConfigFileUsed())
 	}
@@ -74,5 +70,8 @@ func initConfig() {
 	}
 	// make the version available via settings
 	settings.RuntimeVersion = rootCmd.Version
-	log.Debug(fmt.Sprintf("config %#v", settings))
+	if debug {
+		log.Printf("config %#v", settings)
+	}
+
 }

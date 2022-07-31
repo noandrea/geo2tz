@@ -12,7 +12,6 @@ import (
 	"github.com/evanoberholster/timezoneLookup"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/blake2b"
 )
 
@@ -41,6 +40,8 @@ func isEq(expectedTokenHash []byte, actualToken string) bool {
 
 // Start starts the web server
 func Start(config ConfigSchema) (err error) {
+	// echo start
+	e = echo.New()
 	// open the database
 	tz, err = timezoneLookup.LoadTimezones(
 		timezoneLookup.Config{
@@ -56,14 +57,12 @@ func Start(config ConfigSchema) (err error) {
 	hashedToken := hash(config.Web.AuthTokenValue)
 	authEnabled := false
 	if len(config.Web.AuthTokenValue) > 0 {
-		log.Info("Authorization enabled")
+		e.Logger.Info("Authorization enabled")
 		authEnabled = true
 	} else {
-		log.Info("Authorization disabled")
+		e.Logger.Info("Authorization disabled")
 	}
 
-	// echo start
-	e = echo.New()
 	e.HideBanner = true
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
@@ -74,17 +73,20 @@ func Start(config ConfigSchema) (err error) {
 		if authEnabled {
 			requestToken := c.QueryParam(config.Web.AuthTokenParamName)
 			if !isEq(hashedToken, requestToken) {
+				e.Logger.Errorf("request unhautorized, invalid token: %v", requestToken)
 				return c.JSON(http.StatusUnauthorized, map[string]interface{}{"message": "unauthorized"})
 			}
 		}
 		//parse latitude
 		lat, err := parseCoordinate(c.Param(Latitude), Latitude)
 		if err != nil {
+			e.Logger.Errorf("error parsing latitude: %v", err)
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{"message": fmt.Sprint(err)})
 		}
 		//parse longitude
 		lon, err := parseCoordinate(c.Param(Longitude), Longitude)
 		if err != nil {
+			e.Logger.Errorf("error parsing longitude: %v", err)
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{"message": fmt.Sprint(err)})
 		}
 		// build coordinates object
@@ -95,6 +97,7 @@ func Start(config ConfigSchema) (err error) {
 		// query the coordinates
 		res, err := tz.Query(coords)
 		if err != nil {
+			e.Logger.Errorf("error querying the timezoned db: %v", err)
 			return c.JSON(http.StatusInternalServerError, map[string]interface{}{"message": fmt.Sprint(err)})
 		}
 		return c.JSON(http.StatusOK, map[string]interface{}{"tz": res, "coords": coords})
