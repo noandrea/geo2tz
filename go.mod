@@ -5,7 +5,6 @@ go 1.18
 require (
 	github.com/evanoberholster/timezoneLookup v1.0.0
 	github.com/labstack/echo/v4 v4.7.2
-	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.12.0
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa

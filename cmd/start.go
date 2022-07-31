@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/noandrea/geo2tz/server"
@@ -50,7 +50,7 @@ func start(cmd *cobra.Command, args []string) {
 	// Start server
 	go func() {
 		if err := server.Start(settings); err != nil {
-			log.Error("Error starting the server ", err)
+			log.Println("Error starting the server ", err)
 			return
 		}
 	}()
@@ -61,7 +61,7 @@ func start(cmd *cobra.Command, args []string) {
 	signal.Notify(quit, os.Interrupt)
 	<-quit
 	if err := server.Teardown(); err != nil {
-		log.Error("error stopping server: ", err)
+		log.Println("error stopping server: ", err)
 	}
 	fmt.Print("Goodbye")
 }

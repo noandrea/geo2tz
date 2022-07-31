@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/evanoberholster/timezoneLookup"
 	"github.com/spf13/cobra"
@@ -38,24 +38,24 @@ var (
 
 func init() {
 	rootCmd.AddCommand(buildCmd)
-
+	buildCmd.Flags().StringVar(&dbFilename, "db", "timezone", "Destination database filename")
 	buildCmd.Flags().BoolVar(&snappy, "snappy", true, "Use Snappy compression (true/false)")
 	buildCmd.Flags().StringVar(&jsonFilename, "json", "combined-with-oceans.json", "GEOJSON Filename")
 }
 
 func build(cmd *cobra.Command, args []string) {
 	if dbFilename == "" || jsonFilename == "" {
-		log.Printf("Options:\n\t -snappy=true\t Use Snappy compression\n\t -json=filename\t GEOJSON filename \n\t -db=filename\t Database destination\n\t -type=boltdb\t Type of Storage (boltdb or memory) ")
+		fmt.Printf("Options:\n\t -snappy=true\t Use Snappy compression\n\t -json=filename\t GEOJSON filename \n\t -db=filename\t Database destination\n\t -type=boltdb\t Type of Storage (boltdb or memory) ")
 	} else {
 		tz := timezoneLookup.MemoryStorage(snappy, dbFilename)
 		if jsonFilename != "" {
 			err := tz.CreateTimezones(jsonFilename)
 			if err != nil {
-				log.Println(err)
+				fmt.Println(err)
 				return
 			}
 		} else {
-			log.Println("\"-json\" No GeoJSON source file specified")
+			fmt.Println("\"--json\" No GeoJSON source file specified")
 			return
 		}
 

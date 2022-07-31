@@ -52,17 +52,50 @@ For example, running the service with:
 docker run -p 2004:2004 -e GEO2TZ_WEB_AUTH_TOKEN_VALUE=secret noandrea/geo2tz
 ```
 
-will enable authorization:
+will enable authorization. With the authorization enabled, a query that does not specify the token will fail with a HTTP code 401:
 
 ```sh
-> curl http://localhost:2004/tz/41.902782/12.496365
-{"message":"unauthorized"}
+> curl -sv http://localhost:2004/tz/41.902782/12.496365 | jq
 ```
 
-```sh
-> curl http://localhost:2004/tz/41.902782/12.496365\?t\=secret
-{"coords":{"lat":41.902782,"lon":12.496365},"tz":"Europe/Rome"}
+```http
+*   Trying 127.0.0.1:2004...
+* Connected to localhost (127.0.0.1) port 2004 (#0)
+> GET /tz/41.902782/12.496365 HTTP/1.1
+> Host: localhost:2004
+> User-Agent: curl/7.81.0
+> Accept: */*
+> 
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 401 Unauthorized
+< Content-Type: application/json; charset=UTF-8
+< Vary: Origin
+< Date: Sun, 31 Jul 2022 20:06:56 GMT
+< Content-Length: 27
+< 
+{ [27 bytes data]
+* Connection #0 to host localhost left intact
+{
+  "message": "unauthorized"
+}
 ```
+
+Passing the token in the query parameters will succeed instead:
+
+```sh
+> curl -s http://localhost:2004/tz/41.902782/12.496365\?t\=secret | jq
+```
+
+```json
+{
+  "coords": {
+    "lat": 41.902782,
+    "lon": 12.496365
+  },
+  "tz": "Europe/Rome"
+}
+```
+
 
 ## Docker
 
@@ -72,10 +105,7 @@ Docker image is available at [geo2tzt](https://github.com/noandrea/geo2tz/packag
 docker run -p 2004:2004 github.com/noandrea/geo2tz
 ```
 
-The image is built on [scratch](https://hub.docker.com/_/scratch), the image size is ~76mb:
-
-- ~11mb the application
-- ~62mb the tz data
+The image is built on [scratch](https://hub.docker.com/_/scratch), the image size is ~92MB:
 
 If you want to use the in-memory shapefile (which is faster than the default boltDB):
 
