@@ -1,6 +1,6 @@
 GOFILES = $(shell find . -name '*.go' -not -path './vendor/*')
 GOPACKAGES = $(shell go list ./...  | grep -v /vendor/)
-GIT_DESCR = $(shell git describe --tags --always)
+APP_VERSION = $(shell git describe --tags --always)
 APP=geo2tz
 # build output folder
 OUTPUTFOLDER = dist
@@ -8,7 +8,6 @@ RELEASEFOLDER = release
 # docker image
 DOCKER_REGISTRY = docker.pkg.github.com/noandrea/geo2tz
 DOCKER_IMAGE = geo2tz
-DOCKER_TAG = $(GIT_DESCR)
 # build paramters
 OS = linux
 ARCH = amd64
@@ -29,10 +28,17 @@ build: build-dist
 
 build-dist: $(GOFILES)
 	@echo build binary to $(OUTPUTFOLDER)
-	GOOS=$(OS) GOARCH=$(ARCH) CGO_ENABLED=0 go build -ldflags '-s -w -extldflags "-static" -X main.Version=$(GIT_DESCR)' -o $(OUTPUTFOLDER)/$(APP) .
+	GOOS=$(OS) GOARCH=$(ARCH) CGO_ENABLED=0 go build -ldflags '-s -w -extldflags "-static" -X main.Version=$(APP_VERSION)' -o $(OUTPUTFOLDER)/$(APP) .
 	@echo copy resources
 	cp -r README.md LICENSE $(OUTPUTFOLDER)
 	@echo done
+
+
+_check_version:
+ifndef APP_VERSION
+	$(error APP_VERSION is not set, please specifiy the version you want to tag)
+endif
+
 
 test: test-all
 
@@ -57,20 +63,22 @@ lint-all:
 
 clean:
 	@echo remove $(OUTPUTFOLDER) folder
-	@rm -rf dist
+	rm -rf $(OUTPUTFOLDER)
+	@echo remove $(RELEASEFOLDER) folder
+	rm -rf $(RELEASEFOLDER)
 	@echo done
 
 docker: docker-build
 
-docker-build:
+docker-build: _check_version
 	@echo copy resources
-	docker build --build-arg DOCKER_TAG='$(GIT_DESCR)' -t $(DOCKER_IMAGE)  .
+	docker build --build-arg DOCKER_TAG='$(APP_VERSION)' -t $(DOCKER_IMAGE)  .
 	@echo done
 
-docker-push:
+docker-push: _check_version
 	@echo push image
-	docker tag $(DOCKER_IMAGE):latest $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
-	docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker tag $(DOCKER_IMAGE):latest $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(APP_VERSION)
+	docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(APP_VERSION)
 	@echo done
 
 docker-run: 
@@ -79,9 +87,9 @@ docker-run:
 debug-start:
 	@go run main.go start
 
-k8s-deploy:
+k8s-deploy: _check_version
 	@echo deploy k8s
-	kubectl -n $(K8S_NAMESPACE) set image deployment/$(K8S_DEPLOYMENT) $(DOCKER_IMAGE)=$(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	kubectl -n $(K8S_NAMESPACE) set image deployment/$(K8S_DEPLOYMENT) $(DOCKER_IMAGE)=$(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(APP_VERSION)
 	@echo done
 
 k8s-rollback:
@@ -90,34 +98,27 @@ k8s-rollback:
 	@echo done
 
 changelog:
-	git-chglog --output CHANGELOG.md
+	git-chglog --sort semver --output CHANGELOG.md
 
-git-release:
-	@echo making release
-	git tag v$(GIT_DESCR)
-	git-chglog --output CHANGELOG.md
-	git tag v$(GIT_DESCR) --delete
-	git add CHANGELOG.md && git commit -m "v$(GIT_DESCR)" -m "Changelog: https://github.com/noandrea/$(APP)/blob/master/CHANGELOG.md"
-	git tag -s -a "v$(GIT_DESCR)" -m "Changelog: https://github.com/noandrea/$(APP)/blob/master/CHANGELOG.md"
+
+release-prepare: _check_version
+	@echo making release $(APP_VERSION)
+	git tag $(APP_VERSION)
+	git-chglog --sort semver --output CHANGELOG.md
+	git tag $(APP_VERSION) --delete
+	git add CHANGELOG.md && git commit -m "chore: update changelog for $(APP_VERSION)"
 	@echo release complete
 
+git-tag: _check_version
+ifneq ($(shell git rev-parse --abbrev-ref HEAD),main)
+	$(error you are not on the main branch. aborting)
+endif
+	git tag -s -a "$(APP_VERSION)" -m "Changelog: https://github.com/noandrea/geo2tz/blob/main/CHANGELOG.md"
 
-_release-patch:
-	$(eval GIT_DESCR = $(shell git describe --tags | awk -F '("|")' '{ print($$1)}' | awk -F. '{$$NF = $$NF + 1;} 1' | sed 's/ /./g'))
-release-patch: _release-patch git-release
-
-_release-minor:
-	$(eval GIT_DESCR = $(shell git describe --tags | awk -F '("|")' '{ print($$1)}' | awk -F. '{$$(NF-1) = $$(NF-1) + 1;} 1' | sed 's/ /./g' | awk -F. '{$$(NF) = 0;} 1' | sed 's/ /./g'))
-release-minor: _release-minor git-release
-
-_release-major:
-	$(eval GIT_DESCR = $(shell git describe --tags | awk -F '("|")' '{ print($$1)}' | awk -F. '{$$(NF-2) = $$(NF-2) + 1;} 1' | sed 's/ /./g' | awk -F. '{$$(NF-1) = 0;} 1' | sed 's/ /./g' | awk -F. '{$$(NF) = 0;} 1' | sed 's/ /./g' ))
-release-major: _release-major git-release 
-
-gh-publish-release: clean build
+gh-publish-release: _check_version clean build
 	@echo publish release
 	mkdir -p $(RELEASEFOLDER)
-	zip -rmT $(RELEASEFOLDER)/$(APP)-$(GIT_DESCR).zip $(OUTPUTFOLDER)/
-	sha256sum $(RELEASEFOLDER)/$(APP)-$(GIT_DESCR).zip | tee $(RELEASEFOLDER)/$(APP)-$(GIT_DESCR).zip.checksum
-	gh release create $(GIT_DESCR) $(RELEASEFOLDER)/* -t v$(GIT_DESCR) -F CHANGELOG.md
+	zip -rmT $(RELEASEFOLDER)/$(APP)-$(APP_VERSION).zip $(OUTPUTFOLDER)/
+	sha256sum $(RELEASEFOLDER)/$(APP)-$(APP_VERSION).zip | tee $(RELEASEFOLDER)/$(APP)-$(APP_VERSION).zip.checksum
+	gh release create $(APP_VERSION) $(RELEASEFOLDER)/* -t $(APP_VERSION) -F CHANGELOG.md
 	@echo done
