@@ -52,13 +52,13 @@ For example, running the service with:
 docker run -p 2004:2004 -e GEO2TZ_WEB_AUTH_TOKEN_VALUE=secret noandrea/geo2tz
 ```
 
-will enable authorization. With the authorization enabled, a query that does not specify the token will fail with a HTTP code 401:
+will enable authorization. With the authorization enabled, a query that does not specify the token will fail with an HTTP code 401:
 
 ```sh
 > curl -sv http://localhost:2004/tz/41.902782/12.496365 | jq
 ```
 
-```http
+```
 *   Trying 127.0.0.1:2004...
 * Connected to localhost (127.0.0.1) port 2004 (#0)
 > GET /tz/41.902782/12.496365 HTTP/1.1
@@ -107,22 +107,6 @@ docker run -p 2004:2004 github.com/noandrea/geo2tz
 
 The image is built on [scratch](https://hub.docker.com/_/scratch), the image size is ~92MB:
 
-If you want to use the in-memory shapefile (which is faster than the default boltDB):
-
-1. Create a `config.yaml` file, with the following content:
-
-```yaml
-tz:
-    database_name: timezone
-    download_tz_data_url: https://api.github.com/repos/evansiroky/timezone-boundary-builder/releases/latest
-    download_tz_filename: timezones-with-oceans.geojson.zip
-```
-
-2. Bind the `config.yaml` to the docker image with the following command (note config file should be in the same dir where the docker command is executed, else change the path in the bind arg of the command):
-
-```sh
-sudo docker run -it --mount type=bind,source=`pwd`/config.yaml,target=/etc/geo2tz/config.yaml -p 2004:2004 noandrea/geo2tz
-```
 
 ## Docker compose
 
@@ -201,3 +185,47 @@ spec:
     app: geo2tz
 
 ```
+
+## Release process
+
+Before you begin, choose the release version (following Semver), as a convention, this project uses the form of `vX.Y.Z` for version information.
+
+Once you choose the appropriate release version run the following commands from the `main` branch. Note that at this point all the relevant branches should be merged.
+
+Check out the `main` branch:
+
+```sh
+git checkout main
+```
+
+Make sure to have the last version
+
+In this example, we assume that you want to release the version `v1.0.0`.
+
+Generate the changelog and prepare the release:
+
+```
+make release-prepare APP_VERSION=v1.0.0
+```
+
+Prepare the tag:
+
+```
+make git-tag APP_VERSION=v1.0.0
+```
+
+Push the tag and the `main` branch:
+
+```
+git push && git push --tags
+```
+
+Create a git release:
+
+```
+make gh-publish-release APP_VERSION=v1.0.0
+```
+
+That's it!
+
+
