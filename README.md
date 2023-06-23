@@ -22,23 +22,52 @@ the service exposes only one API:
 GET /tz/${LATITUDE}/${LONGITUDE}
 ```
 
-that returns a JSON reply (`http/200`):
+that returns a JSON reply (`http/200`), for example:
 
+```console
+curl -s http://localhost:2004/tz/51.477811/0 | jq
 ```
-{
-    "tz": "${TIMEZONE}",
-    "coords": {
-        "lat": ${LATITUDE},
-        "lon": ${LONGITUDE}
-    }
-}
-```
-
-or in case of errors (`http/4**`):
 
 ```json
 {
-    "message": "${DESCRIPTION}"
+  "coords": {
+    "lat": 51.47781,
+    "lon": 0
+  },
+  "tz": "Europe/London"
+}
+
+```
+
+or in case of errors (`http/4**`), for example:
+
+```console
+curl -v http://localhost:2004/tz/51.477811/1000 | jq
+*   Trying 127.0.0.1:2004...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* Connected to localhost (127.0.0.1) port 2004 (#0)
+> GET /tz/51.477811/1000 HTTP/1.1
+> Host: localhost:2004
+> User-Agent: curl/7.81.0
+> Accept: */*
+>
+* Mark bundle as not supporting multiuse
+< HTTP/1.1 400 Bad Request
+< Content-Type: application/json; charset=UTF-8
+< Vary: Origin
+< Date: Fri, 23 Jun 2023 19:09:29 GMT
+< Content-Length: 54
+<
+{ [54 bytes data]
+100    54  100    54    0     0  89403      0 --:--:-- --:--:-- --:--:-- 54000
+* Connection #0 to host localhost left intact
+
+```
+
+```json
+{
+  "message": "lon value 1000 out of range (-180/+180)"
 }
 ```
 
@@ -65,14 +94,14 @@ will enable authorization. With the authorization enabled, a query that does not
 > Host: localhost:2004
 > User-Agent: curl/7.81.0
 > Accept: */*
-> 
+>
 * Mark bundle as not supporting multiuse
 < HTTP/1.1 401 Unauthorized
 < Content-Type: application/json; charset=UTF-8
 < Vary: Origin
 < Date: Sun, 31 Jul 2022 20:06:56 GMT
 < Content-Length: 27
-< 
+<
 { [27 bytes data]
 * Connection #0 to host localhost left intact
 {
@@ -186,46 +215,10 @@ spec:
 
 ```
 
-## Release process
+## Development notes
 
-Before you begin, choose the release version (following Semver), as a convention, this project uses the form of `vX.Y.Z` for version information.
+To update the timezone database, set the version of the database in the `scripts/update-tzdata.sh` script and run:
 
-Once you choose the appropriate release version run the following commands from the `main` branch. Note that at this point all the relevant branches should be merged.
-
-Check out the `main` branch:
-
-```sh
-git checkout main
+```console
+make update-tzdata
 ```
-
-Make sure to have the last version
-
-In this example, we assume that you want to release the version `v1.0.0`.
-
-Generate the changelog and prepare the release:
-
-```
-make release-prepare APP_VERSION=v1.0.0
-```
-
-Prepare the tag:
-
-```
-make git-tag APP_VERSION=v1.0.0
-```
-
-Push the tag and the `main` branch:
-
-```
-git push && git push --tags
-```
-
-Create a git release:
-
-```
-make gh-publish-release APP_VERSION=v1.0.0
-```
-
-That's it!
-
-
