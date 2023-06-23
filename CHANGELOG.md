@@ -1,4 +1,11 @@
 <a name="unreleased"></a>
+## [2.1.2](https://github.com/noandrea/geo2tz/compare/v2.1.1...v2.1.2) (2023-06-23)
+
+
+### Bug Fixes
+
+* **build:** the docker image is broken ([4cf592b](https://github.com/noandrea/geo2tz/commit/4cf592bd09b85f69248b2e5b1f04af1ee53cca83))
+
 ## [2.1.1](https://github.com/noandrea/geo2tz/compare/v2.1.0...v2.1.1) (2023-06-23)
 
 
