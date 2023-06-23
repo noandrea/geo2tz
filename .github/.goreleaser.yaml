@@ -22,7 +22,6 @@ builds:
       - CGO_ENABLED=0
     goos:
       - linux
-      - darwin
     goarch:
       - amd64
       - arm64
@@ -72,20 +71,20 @@ docker_manifests:
     image_templates:
       - ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Version }}-amd64
       - ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Version }}-arm64v8
-nfpms:
-  - id: packages
-    # Formats to be generated.
-    formats:
-      - deb
-      - rpm
-      - archlinux # Since: v1.13
-    # contents:
-    #   # for updstart
-    #   - src: path/to/local/bar.conf
-    #     dst: /etc/bar.conf
-    #     type: "config|noreplace"
-    #   # for logging
-    #   - dst: /some/dir
-    #     type: dir
-    #     file_info:
-    #       mode: 0700
+# nfpms:
+#   - id: packages
+#     maintainer:
+#     # Formats to be generated.
+#     formats:
+#       - deb
+#       - rpm
+#     # contents:
+#     #   # for updstart
+#     #   - src: path/to/local/bar.conf
+#     #     dst: /etc/bar.conf
+#     #     type: "config|noreplace"
+#     #   # for logging
+#     #   - dst: /some/dir
+#     #     type: dir
+#     #     file_info:
+#     #       mode: 0700
