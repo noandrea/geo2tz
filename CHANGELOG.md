@@ -1,4 +1,18 @@
 <a name="unreleased"></a>
+## [2.1.0](https://github.com/noandrea/geo2tz/compare/v2.0.0...v2.1.0) (2023-06-23)
+
+
+### Features
+
+* add script to update tzdata ([67d34db](https://github.com/noandrea/geo2tz/commit/67d34dbc7f78910530ae3a9c354b8f527ee259da))
+* update tzdata to 2023b ([43f9260](https://github.com/noandrea/geo2tz/commit/43f9260affdd4a9c1907f68592b4138d3e665fc3))
+
+
+### Bug Fixes
+
+* error detecting non-existing files ([992a2ea](https://github.com/noandrea/geo2tz/commit/992a2ea6966b0a93761a48c3b99c3388909e01a4))
+* **security:** update dependencies ([33fed50](https://github.com/noandrea/geo2tz/commit/33fed50b189893d7d06bbba5cd442f58afa93813))
+
 ## [Unreleased]
 
 
