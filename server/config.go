@@ -30,7 +30,7 @@ type ConfigSchema struct {
 // Defaults configure defaults
 func Defaults() {
 	// tz defaults
-	viper.SetDefault("tz.database_name", "timezone")
+	viper.SetDefault("tz.database_name", "tzdata/timezone")
 	viper.SetDefault("tz.snappy", true)
 	viper.SetDefault("tz.download_tz_data", true)
 	viper.SetDefault("tz.download_tz_data_url", "https://api.github.com/repos/evansiroky/timezone-boundary-builder/releases/latest")
@@ -43,7 +43,7 @@ func Defaults() {
 }
 
 // Validate a configuration
-func Validate(schema *ConfigSchema) (err []error) {
+func Validate(_ *ConfigSchema) (err []error) {
 	// TODO: implement this one
 	return
 }

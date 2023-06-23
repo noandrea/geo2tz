@@ -31,11 +31,6 @@ func Execute(v string) error {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is /etc/geo2tz/config.yaml)")
 	// for debug logging
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "Enable debug mode")
