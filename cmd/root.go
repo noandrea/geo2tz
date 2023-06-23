@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -26,18 +27,22 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute(v string) error {
 	rootCmd.Version = v
+
+	if err := initConfig(); err != nil {
+		return err
+	}
+
 	return rootCmd.Execute()
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is /etc/geo2tz/config.yaml)")
 	// for debug logging
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "Enable debug mode")
 }
 
 // initConfig reads in config file and ENV variables if set.
-func initConfig() {
+func initConfig() error {
 	if cfgFile != "" {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
@@ -55,18 +60,18 @@ func initConfig() {
 		err := viper.Unmarshal(&settings)
 		if err != nil {
 			// skipcq
-			log.Fatalln("error parsing settings file", err)
+			return fmt.Errorf("error parsing settings file: %w", err)
 
 		}
 		log.Println("using config file at ", viper.ConfigFileUsed())
 	}
 	if err := viper.Unmarshal(&settings); err != nil {
-		log.Fatal("error unmarshalling settings: ", err)
+		return fmt.Errorf("error unmarshalling settings: %w", err)
 	}
 	// make the version available via settings
 	settings.RuntimeVersion = rootCmd.Version
 	if debug {
 		log.Printf("config %#v", settings)
 	}
-
+	return nil
 }
