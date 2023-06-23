@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,9 @@ package cmd
 
 import (
 	"fmt"
+	"io"
+	"net/http"
+	"os"
 
 	"github.com/evanoberholster/timezoneLookup"
 	"github.com/spf13/cobra"
@@ -31,6 +34,9 @@ var buildCmd = &cobra.Command{
 }
 
 var (
+	// geo data url
+	GeoDataURL = "https://github.com/evansiroky/timezone-boundary-builder/releases/download/2022b/timezones-with-oceans.geojson.zip"
+	// cli parameters
 	snappy       bool
 	jsonFilename string
 	dbFilename   string
@@ -45,9 +51,15 @@ func init() {
 
 func build(cmd *cobra.Command, args []string) {
 	if dbFilename == "" || jsonFilename == "" {
-		fmt.Printf("Options:\n\t -snappy=true\t Use Snappy compression\n\t -json=filename\t GEOJSON filename \n\t -db=filename\t Database destination\n\t -type=boltdb\t Type of Storage (boltdb or memory) ")
+		fmt.Printf("Options:\n\t -snappy=true\t Use Snappy compression\n\t -json=filename\t GEOJSON filename \n\t -db=filename\t Database destination\n")
 	} else {
 		tz := timezoneLookup.MemoryStorage(snappy, dbFilename)
+
+		if !fileExists(jsonFilename) {
+			fmt.Printf("json file %v does not exists, will try to download from the source", jsonFilename)
+			return
+		}
+
 		if jsonFilename != "" {
 			err := tz.CreateTimezones(jsonFilename)
 			if err != nil {
@@ -55,10 +67,51 @@ func build(cmd *cobra.Command, args []string) {
 				return
 			}
 		} else {
-			fmt.Println("\"--json\" No GeoJSON source file specified")
+			fmt.Println(`"--json" No GeoJSON source file specified`)
 			return
 		}
 
 		tz.Close()
 	}
+}
+
+func downloadFile(filepath string, url string) (err error) {
+
+	// Create the file
+	out, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	// Get the data
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Check server response
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("bad status: %s", resp.Status)
+	}
+
+	// Writer the body to file
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func fileExists(filePath string) bool {
+	f, error := os.Stat(filePath)
+	if error != nil {
+		return false
+	}
+	if f.IsDir() {
+		return false
+	}
+	return true
 }
