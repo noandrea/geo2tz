@@ -14,11 +14,11 @@ var cfgFile string
 var debug bool
 var settings server.ConfigSchema
 
-// rootCmd represents the base command when called without any subcommands
+// rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
 	Use:   "geo2tz",
 	Short: "A rest API service to get the timezone from geo coordinates",
-	Long: `Throwing around coordinates to online services seems like not 
+	Long: `Throwing around coordinates to online services seems like not
   a great idea privacy wise.`,
 }
 
@@ -51,7 +51,7 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in, else use the defaults
-	if err := viper.ReadInConfig(); err == nil {
+	if errCfg := viper.ReadInConfig(); errCfg == nil {
 		err := viper.Unmarshal(&settings)
 		if err != nil {
 			// skipcq

@@ -17,9 +17,10 @@ import (
 
 // constant valuses for lat / lon
 const (
-	Latitude      = "lat"
-	Longitude     = "lon"
-	compareEquals = 1
+	Latitude        = "lat"
+	Longitude       = "lon"
+	compareEquals   = 1
+	teardownTimeout = 10 * time.Second
 )
 
 var (
@@ -77,13 +78,13 @@ func Start(config ConfigSchema) (err error) {
 				return c.JSON(http.StatusUnauthorized, map[string]interface{}{"message": "unauthorized"})
 			}
 		}
-		//parse latitude
+		// parse latitude
 		lat, err := parseCoordinate(c.Param(Latitude), Latitude)
 		if err != nil {
 			e.Logger.Errorf("error parsing latitude: %v", err)
 			return c.JSON(http.StatusBadRequest, map[string]interface{}{"message": fmt.Sprint(err)})
 		}
-		//parse longitude
+		// parse longitude
 		lon, err := parseCoordinate(c.Param(Longitude), Longitude)
 		if err != nil {
 			e.Logger.Errorf("error parsing longitude: %v", err)
@@ -91,8 +92,8 @@ func Start(config ConfigSchema) (err error) {
 		}
 		// build coordinates object
 		coords := timezoneLookup.Coord{
-			Lat: float32(lat),
-			Lon: float32(lon),
+			Lat: lat,
+			Lon: lon,
 		}
 		// query the coordinates
 		res, err := tz.Query(coords)
@@ -133,7 +134,7 @@ func Teardown() (err error) {
 	if tz != nil {
 		tz.Close()
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), teardownTimeout)
 	defer cancel()
 	if e != nil {
 		err = e.Shutdown(ctx)

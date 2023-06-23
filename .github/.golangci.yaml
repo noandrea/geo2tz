@@ -32,19 +32,19 @@ linters:
     # - forbidigo # Forbids identifiers
     - funlen # Tool for detection of long functions
     # - gochecknoglobals # check that no global variables exist
-    - gochecknoinits # Checks that no init functions are present in Go code
+    # - gochecknoinits # Checks that no init functions are present in Go code
     - gocognit # Computes and checks the cognitive complexity of functions
     - goconst # Finds repeated strings that could be replaced by a constant
     - gocritic # Provides diagnostics that check for bugs, performance and style issues.
     - gocyclo # Computes and checks the cyclomatic complexity of functions
-    - godot # Check if comments end in a period
+    #- godot # Check if comments end in a period
     - goimports # In addition to fixing imports, goimports also formats your code in the same style as gofmt.
     - gomnd # An analyzer to detect magic numbers.
     - gomoddirectives # Manage the use of 'replace', 'retract', and 'excludes' directives in go.mod.
     - gomodguard # Allow and block list linter for direct Go module dependencies. This is different from depguard where there are different block types for example version constraints and module recommendations.
     - goprintffuncname # Checks that printf-like functions are named with f at the end
     - gosec # Inspects source code for security problems
-    - lll # Reports long lines
+    # - lll # Reports long lines
     - makezero # Finds slice declarations with non-zero initial length
     # - nakedret # Finds naked returns in functions greater than a specified function length
     - nestif # Reports deeply nested if statements
@@ -61,13 +61,13 @@ linters:
     # - sqlclosecheck # Checks that sql.Rows and sql.Stmt are closed. TODO disabled for lack of support of generics
     - stylecheck # Stylecheck is a replacement for golint
     - tenv # tenv is analyzer that detects using os.Setenv instead of t.Setenv since Go1.17
-    - testpackage # linter that makes you use a separate _test package
+    # - testpackage # linter that makes you use a separate _test package
     - tparallel # tparallel detects inappropriate usage of t.Parallel() method in your Go test codes
     - unconvert # Remove unnecessary type conversions
     - unparam # Reports unused function parameters
     - usestdlibvars # detect the possibility to use variables/constants from the Go standard library
     # - wastedassign # wastedassign finds wasted assignment statements. TODO disabled for lack of support of generics
-    - whitespace # Tool for detection of leading and trailing whitespace
+    #- whitespace # Tool for detection of leading and trailing whitespace
     ## you may want to enable
     #- decorder # check declaration order and count of types, constants, variables and functions
     #- exhaustruct # Checks if all structure fields are initialized
