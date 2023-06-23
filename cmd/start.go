@@ -11,7 +11,7 @@ import (
 	"github.com/noandrea/geo2tz/server"
 )
 
-// startCmd represents the start command
+// startCmd represents the start command.
 var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "starts the geo2tz service",
@@ -23,13 +23,13 @@ func init() {
 	rootCmd.AddCommand(startCmd)
 }
 
-func start(cmd *cobra.Command, args []string) {
+func start(*cobra.Command, []string) {
 	fmt.Printf(`
-  _____           ___  _       
- / ____|         |__ \| |      
+  _____           ___  _
+ / ____|         |__ \| |
 | |  __  ___  ___   ) | |_ ____
 | | |_ |/ _ \/ _ \ / /| __|_  /
-| |__| |  __/ (_) / /_| |_ / / 
+| |__| |  __/ (_) / /_| |_ / /
  \_____|\___|\___/____|\__/___| version %s
 `, rootCmd.Version)
 	// Start server
@@ -42,7 +42,8 @@ func start(cmd *cobra.Command, args []string) {
 
 	// Wait for interrupt signal to gracefully shutdown the server with
 	// a timeout of 10 seconds.
-	quit := make(chan os.Signal, 2)
+	signalChannelLength := 2
+	quit := make(chan os.Signal, signalChannelLength)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
 	if err := server.Teardown(); err != nil {

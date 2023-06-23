@@ -28,7 +28,7 @@ import (
 	"github.com/noandrea/geo2tz/cmd"
 )
 
-// Version hold the version of the program
+// Version hold the version of the program.
 var Version = "0.0.0"
 
 func main() {
