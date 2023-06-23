@@ -1,19 +1,5 @@
-GOFILES = $(shell find . -name '*.go' -not -path './vendor/*')
 GOPACKAGES = $(shell go list ./...  | grep -v /vendor/)
-APP_VERSION = $(shell git describe --tags --always)
 APP=geo2tz
-# build output folder
-OUTPUTFOLDER = dist
-RELEASEFOLDER = release
-# docker image
-DOCKER_REGISTRY = docker.pkg.github.com/noandrea/geo2tz
-DOCKER_IMAGE = geo2tz
-# build paramters
-OS = linux
-ARCH = amd64
-# K8S
-K8S_NAMESPACE = geo
-K8S_DEPLOYMENT = geo2tz
 
 .PHONY: list
 list:
@@ -27,10 +13,8 @@ workdir:
 build: build-dist
 
 build-dist: $(GOFILES)
-	@echo build binary to $(OUTPUTFOLDER)
-	GOOS=$(OS) GOARCH=$(ARCH) CGO_ENABLED=0 go build -ldflags '-s -w -extldflags "-static" -X main.Version=$(APP_VERSION)' -o $(OUTPUTFOLDER)/$(APP) .
-	@echo copy resources
-	cp -r README.md LICENSE $(OUTPUTFOLDER)
+	@echo build binary
+	goreleaser build --single-target --config .github/.goreleaser.yaml --snapshot --clean
 	@echo done
 
 
@@ -53,36 +37,14 @@ bench: bench-all
 bench-all:
 	@go test -bench -v $(GOPACKAGES)
 
-lint: lint-all
+go.sum: go.mod
+	@echo "--> Ensure dependencies have not been modified"
+	GO111MODULE=on go mod verify
 
-lint-all:
-	@echo running linters
-	staticcheck $(GOPACKAGES)
-	golint -set_exit_status $(GOPACKAGES)
-	@echo done
-
-clean:
-	@echo remove $(OUTPUTFOLDER) folder
-	rm -rf $(OUTPUTFOLDER)
-	@echo remove $(RELEASEFOLDER) folder
-	rm -rf $(RELEASEFOLDER)
-	@echo done
-
-docker: docker-build
-
-docker-build: _check_version
-	@echo copy resources
-	docker build --build-arg DOCKER_TAG='$(APP_VERSION)' -t $(DOCKER_IMAGE)  .
-	@echo done
-
-docker-push: _check_version
-	@echo push image
-	docker tag $(DOCKER_IMAGE):latest $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(APP_VERSION)
-	docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(APP_VERSION)
-	@echo done
-
-docker-run: 
-	docker run -p 2004:2004 $(DOCKER_IMAGE):latest
+lint:
+	@echo "--> Running linter"
+	@golangci-lint run --config .github/.golangci.yaml
+	@go mod verify
 
 debug-start:
 	@go run main.go start
@@ -97,28 +59,10 @@ k8s-rollback:
 	kubectl -n $(K8S_NAMESPACE) rollout undo deployment/$(K8S_DEPLOYMENT)
 	@echo done
 
-changelog:
-	git-chglog --sort semver --output CHANGELOG.md
 
-
-release-prepare: _check_version
-	@echo making release $(APP_VERSION)
-	git tag $(APP_VERSION)
-	git-chglog --sort semver --output CHANGELOG.md
-	git tag $(APP_VERSION) --delete
-	git add CHANGELOG.md && git commit -m "chore: update changelog for $(APP_VERSION)"
-	@echo release complete
-
-git-tag: _check_version
-ifneq ($(shell git rev-parse --abbrev-ref HEAD),main)
-	$(error you are not on the main branch. aborting)
-endif
-	git tag -s -a "$(APP_VERSION)" -m "Changelog: https://github.com/noandrea/geo2tz/blob/main/CHANGELOG.md"
-
-gh-publish-release: _check_version clean build
-	@echo publish release
-	mkdir -p $(RELEASEFOLDER)
-	zip -rmT $(RELEASEFOLDER)/$(APP)-$(APP_VERSION).zip $(OUTPUTFOLDER)/
-	sha256sum $(RELEASEFOLDER)/$(APP)-$(APP_VERSION).zip | tee $(RELEASEFOLDER)/$(APP)-$(APP_VERSION).zip.checksum
-	gh release create $(APP_VERSION) $(RELEASEFOLDER)/* -t $(APP_VERSION) -F CHANGELOG.md
+update-tzdata:
+	@echo "--> Updating timzaone data"
+	@echo build binary
+	goreleaser build --single-target --config .github/.goreleaser.yaml --snapshot --clean -o dist/geo2tz
+	./scripts/update-tzdata.sh
 	@echo done

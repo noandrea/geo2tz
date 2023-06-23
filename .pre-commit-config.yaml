@@ -1,12 +1,14 @@
 repos:
-- repo: https://github.com/golangci/golangci-lint
-  rev: v1.46.2
-  hooks:
-    - id: golangci-lint
-# commit msg check
-- repo: https://github.com/compilerla/conventional-pre-commit
-  rev: v1.0.0
-  hooks:
-    - id: conventional-pre-commit
-      stages: [commit-msg]
-      args: [] # optional: list of Conventional Commits types to allow
+  []
+  # - repo: https://github.com/golangci/golangci-lint
+  #   rev: v1.46.2
+  #   hooks:
+  #     - id: golangci-lint
+  #       args: ["--config", ".github/.golangci.yaml"]
+  # # commit msg check
+  # - repo: https:q//github.com/compilerla/conventional-pre-commit
+  #   rev: v2.3.0
+  #   hooks:
+  #     - id: conventional-pre-commit
+  #       stages: [commit-msg]
+  #       args: [] # optional: list of Conventional Commits types to allow
