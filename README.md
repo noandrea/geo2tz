@@ -6,7 +6,7 @@ A self-host-able service to get the timezone given geo-coordinates (lat/long)
 
 It does it by exposing the library from [github.com/evanoberholster/timezoneLookup](https://github.com/evanoberholster/timezoneLookup)
 
-Timezone data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder) (release [2020d](https://github.com/evansiroky/timezone-boundary-builder/releases/tag/2020d))
+Timezone data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder) (release [2023b](https://github.com/evansiroky/timezone-boundary-builder/releases/tag/2023b))
 
 ## Motivations
 
