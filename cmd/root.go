@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/noandrea/geo2tz/server"
+	"github.com/noandrea/geo2tz/v2/server"
 )
 
 var cfgFile string

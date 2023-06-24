@@ -25,7 +25,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/noandrea/geo2tz/cmd"
+	"github.com/noandrea/geo2tz/v2/cmd"
 )
 
 // Version hold the version of the program.

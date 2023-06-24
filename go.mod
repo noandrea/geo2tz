@@ -1,4 +1,4 @@
-module github.com/noandrea/geo2tz
+module github.com/noandrea/geo2tz/v2
 
 go 1.19
 

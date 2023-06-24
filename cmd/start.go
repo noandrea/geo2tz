@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/noandrea/geo2tz/server"
+	"github.com/noandrea/geo2tz/v2/server"
 )
 
 // startCmd represents the start command.
