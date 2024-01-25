@@ -17,75 +17,120 @@ package cmd
 
 import (
 	"fmt"
-	"os"
+	"net/http"
+	"strings"
+	"time"
 
-	"github.com/evanoberholster/timezoneLookup"
+	"github.com/evanoberholster/timezoneLookup/v2"
+	"github.com/noandrea/geo2tz/v2/helpers"
+	"github.com/noandrea/geo2tz/v2/web"
 	"github.com/spf13/cobra"
+)
+
+const (
+	// geo data url
+	LatestReleaseURL = "https://github.com/evansiroky/timezone-boundary-builder/releases/latest"
+	TZZipFile        = "tzdata/timezone.zip"
+)
+
+var (
+	// cli parameters.
+	cacheFile  string
+	geoDataURL string
 )
 
 // buildCmd represents the build command
 var buildCmd = &cobra.Command{
-	Use:   "build",
-	Short: "Build the location database",
-	Long:  `The commands replicates the functionality of the evanoberholster/timezoneLookup timezone command`,
-	Run:   build,
+	Use:     "build",
+	Short:   "Build the location database for a specific version",
+	Example: `geo2tz build 2023d`,
+	Long:    `The commands replicates the functionality of the evanoberholster/timezoneLookup timezone command`,
+	Args:    cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		tzVersion := web.NewTzRelease(args[0])
+		return update(tzVersion, cacheFile, web.Settings.Tz.DatabaseName)
+	},
 }
 
-var (
-	// geo data url
-	GeoDataURL = "https://github.com/evansiroky/timezone-boundary-builder/releases/download/2022b/timezones-with-oceans.geojson.zip"
-	// cli parameters.
-	snappy       bool
-	jsonFilename string
-	dbFilename   string
-)
+// buildCmd represents the build command
+var updateCmd = &cobra.Command{
+	Use:   "update",
+	Short: "Update the location database by downloading the latest version",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		tzVersion, err := getLatest()
+		if err != nil {
+			return err
+		}
+		return update(tzVersion, cacheFile, web.Settings.Tz.DatabaseName)
+	},
+}
 
 func init() {
 	rootCmd.AddCommand(buildCmd)
-	buildCmd.Flags().StringVar(&dbFilename, "db", "timezone", "Destination database filename")
-	buildCmd.Flags().BoolVar(&snappy, "snappy", true, "Use Snappy compression (true/false)")
-	buildCmd.Flags().StringVar(&jsonFilename, "json", "combined-with-oceans.json", "GEOJSON Filename")
+	buildCmd.Flags().StringVar(&cacheFile, "cache", TZZipFile, "Temporary cache filename")
+	buildCmd.Flags().StringVar(&web.Settings.Tz.DatabaseName, "db", web.TZDBFile, "Destination database filename")
+	buildCmd.Flags().StringVar(&web.Settings.Tz.VersionFile, "version-file", web.TZVersionFile, "Version file")
+	rootCmd.AddCommand(updateCmd)
+	updateCmd.Flags().StringVar(&geoDataURL, "geo-data-url", "", "URL to download geo data from")
+	updateCmd.Flags().StringVar(&cacheFile, "cache", TZZipFile, "Temporary cache filename")
+	updateCmd.Flags().StringVar(&web.Settings.Tz.DatabaseName, "db", web.TZDBFile, "Destination database filename")
+	updateCmd.Flags().StringVar(&web.Settings.Tz.VersionFile, "version-file", web.TZVersionFile, "Version file")
 }
 
-func build(*cobra.Command, []string) {
-	if dbFilename == "" || jsonFilename == "" {
-		fmt.Printf(`Options:
-  -snappy=true   Use Snappy compression
-  -json=filename GEOJSON filename
-  -db=filename   Database destination
-`)
+func update(release web.TzRelease, zipFile, dbFile string) (err error) {
+	// remove old file
+	if err = helpers.DeleteQuietly(zipFile, dbFile); err != nil {
 		return
 	}
 
-	tz := timezoneLookup.MemoryStorage(snappy, dbFilename)
-
-	if !fileExists(jsonFilename) {
-		fmt.Printf("json file %v does not exists, will try to download from the source", jsonFilename)
+	var (
+		tzc   timezoneLookup.Timezonecache
+		total int
+	)
+	fmt.Printf("building database %s v%s from %s\n", dbFile, release.Version, release.GeoDataURL)
+	if err = timezoneLookup.ImportZipFile(zipFile, release.GeoDataURL, func(tz timezoneLookup.Timezone) error {
+		total += len(tz.Polygons)
+		tzc.AddTimezone(tz)
+		return nil
+	}); err != nil {
 		return
 	}
-
-	if jsonFilename != "" {
-		err := tz.CreateTimezones(jsonFilename)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-	} else {
-		fmt.Println(`"--json" No GeoJSON source file specified`)
+	if err = tzc.Save(dbFile); err != nil {
 		return
 	}
+	tzc.Close()
+	fmt.Println("polygons added:", total)
+	fmt.Println("saved timezone data to:", dbFile)
 
-	tz.Close()
-
+	// remove tmp file
+	if err = helpers.DeleteQuietly(cacheFile); err != nil {
+		return
+	}
+	err = helpers.SaveJSON(release, web.Settings.Tz.VersionFile)
+	return
 }
 
-func fileExists(filePath string) bool {
-	f, err := os.Stat(filePath)
+func getLatest() (web.TzRelease, error) {
+	// create http client
+	client := &http.Client{
+		Timeout: 1 * time.Second,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			// don't follow redirects
+			return http.ErrUseLastResponse
+		},
+	}
+	r, err := client.Head(LatestReleaseURL)
 	if err != nil {
-		return false
+		err = fmt.Errorf("failed to get release url: %w", err)
+		return web.TzRelease{}, err
 	}
-	if f.IsDir() {
-		return false
+	defer r.Body.Close()
+	// get the tag name
+	releaseURL, err := r.Location()
+	if err != nil {
+		err = fmt.Errorf("failed to get release url: %w", err)
+		return web.TzRelease{}, err
 	}
-	return true
+	v := web.NewTzRelease(releaseURL.Path[strings.LastIndex(releaseURL.Path, "/")+1:])
+	return v, nil
 }
