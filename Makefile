@@ -27,7 +27,11 @@ endif
 test: test-all
 
 test-all:
-	@go test -v $(GOPACKAGES) -coverprofile .testCoverage.txt
+	@go test -v $(GOPACKAGES) -race -covermode=atomic -coverprofile coverage.txt
+
+test-coverage:
+	go test -mod=readonly -coverprofile=coverage.out -covermode=atomic -timeout 30s $(GOPACKAGES) && \
+	go tool cover -html=coverage.out
 
 test-ci:
 	go test -coverprofile=coverage.txt -covermode=atomic -race -mod=readonly $(GOPACKAGES)
@@ -43,7 +47,7 @@ go.sum: go.mod
 
 lint:
 	@echo "--> Running linter"
-	@golangci-lint run --config .github/.golangci.yaml
+	golangci-lint run --config .github/.golangci.yaml
 	@go mod verify
 
 debug-start:
@@ -63,6 +67,6 @@ k8s-rollback:
 update-tzdata:
 	@echo "--> Updating timzaone data"
 	@echo build binary
-	goreleaser build --single-target --config .github/.goreleaser.yaml --snapshot --clean -o dist/geo2tz
-	./scripts/update-tzdata.sh
+	goreleaser build --single-target --config .github/.goreleaser.yaml --snapshot --clean -o geo2tz
+	./geo2tz update
 	@echo done
