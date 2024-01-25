@@ -2,4 +2,5 @@ geo2tz
 dist
 release
 
-coverage.*q
+coverage.*
+*.zip
