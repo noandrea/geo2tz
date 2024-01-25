@@ -5,15 +5,14 @@ import (
 	"log"
 	"strings"
 
+	"github.com/noandrea/geo2tz/v2/web"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	"github.com/noandrea/geo2tz/v2/server"
 )
 
 var cfgFile string
 var debug bool
-var settings server.ConfigSchema
+var settings web.ConfigSchema
 
 // rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
@@ -50,7 +49,7 @@ func initConfig() error {
 		viper.AddConfigPath("/etc/geo2tz")
 		viper.SetConfigName("config")
 	}
-	server.Defaults()
+	web.Defaults()
 	viper.SetEnvPrefix("GEO2TZ")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.AutomaticEnv() // read in environment variables that match
