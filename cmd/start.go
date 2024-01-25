@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/noandrea/geo2tz/v2/server"
+	"github.com/noandrea/geo2tz/v2/web"
 )
 
 // startCmd represents the start command.
@@ -33,10 +33,15 @@ func start(*cobra.Command, []string) {
  \_____|\___|\___/____|\__/___| version %s
 `, rootCmd.Version)
 	// Start server
+	server, err := web.NewServer(settings)
+	if err != nil {
+		log.Println("Error creating the server ", err)
+		os.Exit(1)
+	}
 	go func() {
-		if err := server.Start(settings); err != nil {
+		if err = server.Start(); err != nil {
 			log.Println("Error starting the server ", err)
-			return
+			os.Exit(1)
 		}
 	}()
 
@@ -46,7 +51,7 @@ func start(*cobra.Command, []string) {
 	quit := make(chan os.Signal, signalChannelLength)
 	signal.Notify(quit, os.Interrupt)
 	<-quit
-	if err := server.Teardown(); err != nil {
+	if err = server.Teardown(); err != nil {
 		log.Println("error stopping server: ", err)
 	}
 	fmt.Print("Goodbye")
