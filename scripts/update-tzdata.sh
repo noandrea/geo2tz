@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=2023b
+VERSION=2024a
 WORKDIR=dist
 
 pushd $WORKDIR
