@@ -1,4 +1,11 @@
 <a name="unreleased"></a>
+## [2.1.5](https://github.com/noandrea/geo2tz/compare/v2.1.4...v2.1.5) (2024-06-16)
+
+
+### Bug Fixes
+
+* github release jobs ([e4b720a](https://github.com/noandrea/geo2tz/commit/e4b720a6b3d2d16904665f9d6c92130320958a12))
+
 ## [2.1.4](https://github.com/noandrea/geo2tz/compare/v2.1.3...v2.1.4) (2023-06-23)
 
 
