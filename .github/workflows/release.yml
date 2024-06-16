@@ -13,12 +13,10 @@ on:
       - "v*"
   workflow_dispatch:
 
-
 permissions:
   contents: write
   pull-requests: write
   packages: write
-
 
 jobs:
   release:
@@ -27,16 +25,10 @@ jobs:
     steps:
       - id: release-please
         name: Release Please
-        uses: google-github-actions/release-please-action@v3
+        uses: googleapis/release-please-action@v4
         with:
           release-type: go
-          package-name: authex
-          changelog-types: >-
-            [
-              {"type":"feat","section":"Features","hidden":false},
-              {"type":"fix","section":"Bug Fixes","hidden":false},
-              {"type":"chore","section":"Miscellaneous","hidden":true}
-            ]
+          config-file: ../release-please-config.json
       - name: Checkout
         uses: actions/checkout@v3
         if: steps.release-please.outputs.release_created
@@ -60,8 +52,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      -
-        name: Import GPG key
+      - name: Import GPG key
         id: import_gpg
         uses: crazy-max/ghaction-import-gpg@v5
         if: steps.release-please.outputs.release_created
@@ -75,5 +66,5 @@ jobs:
           args: release --clean --config .github/.goreleaser.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ORG : ${{ github.repository_owner }}
+          GITHUB_ORG: ${{ github.repository_owner }}
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
