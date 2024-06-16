@@ -78,7 +78,7 @@ Geo2Tz supports a basic token authorization mechanism, if the configuration valu
 For example, running the service with:
 
 ```sh
-docker run -p 2004:2004 -e GEO2TZ_WEB_AUTH_TOKEN_VALUE=secret noandrea/geo2tz
+docker run -p 2004:2004 -e GEO2TZ_WEB_AUTH_TOKEN_VALUE=secret ghcr.io/noandrea/geo2tz:2.1.5
 ```
 
 will enable authorization. With the authorization enabled, a query that does not specify the token will fail with an HTTP code 401:
@@ -128,10 +128,10 @@ Passing the token in the query parameters will succeed instead:
 
 ## Docker
 
-Docker image is available at [geo2tzt](https://github.com/noandrea/geo2tz/packages)
+Docker image is available at [geo2tz](https://github.com/noandrea/geo2tz/pkgs/container/geo2tz)
 
 ```sh
-docker run -p 2004:2004 github.com/noandrea/geo2tz
+docker run -p 2004:2004 ghcr.io/noandrea/geo2tz:2.1.5
 ```
 
 The image is built on [scratch](https://hub.docker.com/_/scratch), the image size is ~92MB:
@@ -146,7 +146,7 @@ version: '3'
 services:
   geo2tz:
     container_name: geo2tz
-    image: github.com/noandrea/geo2tz
+    image: ghcr.io/noandrea/geo2tz:2.1.5
     ports:
     - 2004:2004
     # uncomment to enable authorization via request token
@@ -190,7 +190,7 @@ spec:
         #  value: "t" # default value
         #- name: GEO2TZ_WEB_LISTEN_ADDRESS
         #  value: ":2004" # default value
-        image: github.com/noandrea/geo2tz:latest
+        image: ghcr.io/noandrea/geo2tz:2.1.5
         imagePullPolicy: Always
         name: geo2tz
         ports:
