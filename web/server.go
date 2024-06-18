@@ -6,14 +6,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/evanoberholster/timezoneLookup/v2"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/noandrea/geo2tz/v2/db"
 	"github.com/noandrea/geo2tz/v2/helpers"
 
 	"golang.org/x/crypto/blake2b"
@@ -40,7 +39,7 @@ func isEq(expectedTokenHash []byte, actualToken string) bool {
 
 type Server struct {
 	config          ConfigSchema
-	tzDB            timezoneLookup.Timezonecache
+	tzDB            db.TzDBIndex
 	tzRelease       TzRelease
 	echo            *echo.Echo
 	authEnabled     bool
@@ -52,7 +51,6 @@ func (server *Server) Start() error {
 }
 
 func (server *Server) Teardown() (err error) {
-	server.tzDB.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), teardownTimeout)
 	defer cancel()
 	if server.echo != nil {
@@ -65,19 +63,13 @@ func NewServer(config ConfigSchema) (*Server, error) {
 	var server Server
 	server.config = config
 	server.echo = echo.New()
-	// open the database
-	f, err := os.Open(config.Tz.DatabaseName)
-	if err != nil {
-		err = errors.Join(ErrorDatabaseFileNotFound, fmt.Errorf("error opening the timezone database: %w", err))
-		return nil, err
-	}
-	defer f.Close()
 
 	// load the database
-	if err = server.tzDB.Load(f); err != nil {
-		err = errors.Join(ErrorDatabaseFileInvalid, fmt.Errorf("error loading the timezone database: %w", err))
+	tzDB, err := db.NewGeo2TzRTreeIndexFromGeoJSON(config.Tz.DatabaseName)
+	if err != nil {
 		return nil, err
 	}
+	server.tzDB = tzDB
 
 	// check token authorization
 	server.authHashedToken = hash(config.Web.AuthTokenValue)
@@ -129,19 +121,19 @@ func (server *Server) handleTzRequest(c echo.Context) error {
 	}
 
 	// query the coordinates
-	res, err := server.tzDB.Search(lat, lon)
-	if err != nil {
-		server.echo.Logger.Errorf("error querying the timezone db: %v", err)
-		return c.JSON(http.StatusInternalServerError, newErrResponse(err))
-	}
-	if res.Name == "" {
+	res, err := server.tzDB.Lookup(lat, lon)
+	switch err {
+	case nil:
+		tzr := newTzResponse(res, lat, lon)
+		return c.JSON(http.StatusOK, tzr)
+	case db.ErrNotFound:
 		notFoundErr := fmt.Errorf("timezone not found for coordinates %f,%f", lat, lon)
 		server.echo.Logger.Errorf("error querying the timezone db: %v", notFoundErr)
 		return c.JSON(http.StatusNotFound, newErrResponse(notFoundErr))
+	default:
+		server.echo.Logger.Errorf("error querying the timezone db: %v", err)
+		return c.JSON(http.StatusInternalServerError, newErrResponse(err))
 	}
- 
-	tzr := newTzResponse(res.Name, lat, lon)
-	return c.JSON(http.StatusOK, tzr)
 }
 
 func newTzResponse(tzName string, lat, lon float64) map[string]any {
