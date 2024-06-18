@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	TZDBFile      = "tzdata/timezone.db"
+	TZDBFile      = "tzdata/timezones.zip"
 	TZVersionFile = "tzdata/version.json"
 
 	GeoDataURLTemplate        = "https://github.com/evansiroky/timezone-boundary-builder/releases/download/%s/timezones-with-oceans.geojson.zip"
