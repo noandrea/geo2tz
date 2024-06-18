@@ -1,10 +1,8 @@
 # Geo2Tz
 
-[![Build Status](https://travis-ci.com/noandrea/geo2tz.svg?branch=master)](https://travis-ci.com/noandrea/geo2tz) [![GoDoc](https://godoc.org/github.com/noandrea/geo2tz?status.svg)](https://godoc.org/github.com/noandrea/geo2tz) [![Go Report Card](https://goreportcard.com/badge/github.com/noandrea/geo2tz)](https://goreportcard.com/report/github.com/noandrea/geo2tz)
+[![QA](https://github.com/noandrea/geo2tz/actions/workflows/quality.yml/badge.svg)](https://github.com/noandrea/geo2tz/actions/workflows/quality.yml) [![GoDoc](https://godoc.org/github.com/noandrea/geo2tz?status.svg)](https://godoc.org/github.com/noandrea/geo2tz) [![Go Report Card](https://goreportcard.com/badge/github.com/noandrea/geo2tz)](https://goreportcard.com/report/github.com/noandrea/geo2tz)
 
-A self-host-able service to get the timezone given geo-coordinates (lat/long)
-
-It does it by exposing the library from [github.com/evanoberholster/timezoneLookup](https://github.com/evanoberholster/timezoneLookup)
+A self-host-able service to get the timezone given geo-coordinates (lat/lng)
 
 Timezone data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder) (release [2023b](https://github.com/evansiroky/timezone-boundary-builder/releases/tag/2023b))
 
@@ -215,10 +213,25 @@ spec:
 
 ```
 
-## Development notes
+## Development note_s
 
-To update the timezone database, set the version of the database in the `scripts/update-tzdata.sh` script and run:
+To update the timezone database you have a few options:
+
+1. update to the latest version
 
 ```console
-make update-tzdata
+geo2tz update latest
 ```
+
+2. update to a specific version
+
+```console
+geo2tz build 2023b
+```
+
+
+the `build` command will download the timezone geojson zip and generate a version file in the `tzdata` directory, the version file is used to track the current version of the database.
+
+
+
+
