@@ -7,10 +7,6 @@ on:
       - "LICENSE"
       - "docs"
       - "Makefile"
-    branches:
-      - "main"
-    tags:
-      - "v*"
   workflow_dispatch:
 
 permissions:
