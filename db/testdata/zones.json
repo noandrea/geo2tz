@@ -1,0 +1,992 @@
+{
+  "Africa/Abidjan": {
+    "zone": "GMT",
+    "utc_offset_h": 0
+  },
+  "Africa/Accra": {
+    "zone": "GMT",
+    "utc_offset_h": 0
+  },
+  "Africa/Addis_Ababa": {
+    "zone": "EAT",
+    "utc_offset_h": 3
+  },
+  "Africa/Algiers": {
+    "zone": "CET",
+    "utc_offset_h": 1
+  },
+  "Africa/Cairo": {
+    "zone": "EET",
+    "utc_offset_h": 2,
+    "dst": {
+      "zone": "EEST",
+      "start": "last Friday in April",
+      "end": "last Thursday in September",
+      "utc_offset_h": 3
+    }
+  },
+  "Africa/Cape_Town": {
+    "zone": "SAST",
+    "utc_offset_h": 2
+  },
+  "Africa/Casablanca": {
+    "zone": "WET",
+    "utc_offset_h": 0,
+    "dst": {
+      "zone": "WEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 1
+    }
+  },
+  "Africa/Ceuta": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Africa/Johannesburg": {
+    "zone": "SAST",
+    "utc_offset_h": 2
+  },
+  "Africa/Tripoli": {
+    "zone": "EET",
+    "utc_offset_h": 2,
+    "dst": {
+      "zone": "EEST",
+      "start": "last Friday in March",
+      "end": "last Thursday in October",
+      "utc_offset_h": 3
+    }
+  },
+  "America/Adak": {
+    "zone": "HST",
+    "utc_offset_h": -10,
+    "dst": {
+      "zone": "HDT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -9
+    }
+  },
+  "Africa/Harare": {
+    "zone": "CAT",
+    "utc_offset_h": 2
+  },
+  "America/Vancouver": {
+    "zone": "PST",
+    "utc_offset_h": -8,
+    "dst": {
+      "zone": "PDT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -7
+    }
+  },
+  "Africa/Gaborone": {
+    "zone": "CAT",
+    "utc_offset_h": 2
+  },
+  "Africa/Lusaka": {
+    "zone": "CAT",
+    "utc_offset_h": 2
+  },
+  "Asia/Tehran": {
+    "zone": "IRST",
+    "utc_offset_h": 3.5,
+    "dst": {
+      "zone": "IRDT",
+      "start": "21st March",
+      "end": "21st September",
+      "utc_offset_h": 4.5
+    }
+  },
+  "Australia/Melbourne": {
+    "zone": "AEST",
+    "utc_offset_h": 10,
+    "dst": {
+      "zone": "AEDT",
+      "start": "first Sunday in October",
+      "end": "first Sunday in April",
+      "utc_offset_h": 11
+    }
+  },
+  "Africa/Nairobi": {
+    "zone": "EAT",
+    "utc_offset_h": 3
+  },
+  "America/Toronto": {
+    "zone": "EST",
+    "utc_offset_h": -5,
+    "dst": {
+      "zone": "EDT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -4
+    }
+  },
+  "America/Anchorage": {
+    "zone": "AKST",
+    "utc_offset_h": -9,
+    "dst": {
+      "zone": "AKDT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -8
+    }
+  },
+  "America/Argentina/Buenos_Aires": {
+    "zone": "ART",
+    "utc_offset_h": -3
+  },
+  "America/Argentina/Catamarca": {
+    "zone": "ART",
+    "utc_offset_h": -3
+  },
+  "America/Argentina/ComodRivadavia": {
+    "zone": "ART",
+    "utc_offset_h": -3
+  },
+  "America/Argentina/Cordoba": {
+    "zone": "ART",
+    "utc_offset_h": -3
+  },
+  "America/Argentina/Jujuy": {
+    "zone": "ART",
+    "utc_offset_h": -3
+  },
+  "America/Argentina/La_Rioja": {
+    "zone": "ART",
+    "utc_offset_h": -3
+  },
+  "America/Argentina/Mendoza": {
+    "zone": "ART",
+    "utc_offset_h": -3
+  },
+  "America/Argentina/Rio_Gallegos": {
+    "zone": "ART",
+    "utc_offset_h": -3
+  },
+  "America/Argentina/Salta": {
+    "zone": "ART",
+    "utc_offset_h": -3
+  },
+  "America/Argentina/San_Juan": {
+    "zone": "ART",
+    "utc_offset_h": -3
+  },
+  "America/Argentina/San_Luis": {
+    "zone": "WART",
+    "utc_offset_h": -3
+  },
+  "America/Argentina/Tucuman": {
+    "zone": "ART",
+    "utc_offset_h": -3
+  },
+  "America/Argentina/Ushuaia": {
+    "zone": "ART",
+    "utc_offset_h": -3
+  },
+  "America/Asuncion": {
+    "zone": "PYT",
+    "utc_offset_h": -4,
+    "dst": {
+      "zone": "PYST",
+      "start": "first Sunday in October",
+      "end": "fourth Sunday in March",
+      "utc_offset_h": -3
+    }
+  },
+  "America/Atikokan": {
+    "zone": "EST",
+    "utc_offset_h": -5
+  },
+  "America/Bahia_Banderas": {
+    "zone": "CST",
+    "utc_offset_h": -6,
+    "dst": {
+      "zone": "CDT",
+      "start": "first Sunday in April",
+      "end": "last Sunday in October",
+      "utc_offset_h": -5
+    }
+  },
+  "America/Barbados": {
+    "zone": "AST",
+    "utc_offset_h": -4
+  },
+  "America/Belize": {
+    "zone": "CST",
+    "utc_offset_h": -6
+  },
+  "America/Boa_Vista": {
+    "zone": "AMT",
+    "utc_offset_h": -4
+  },
+  "America/Bogota": {
+    "zone": "COT",
+    "utc_offset_h": -5
+  },
+  "America/Caracas": {
+    "zone": "VET",
+    "utc_offset_h": -4.5
+  },
+  "America/Chicago": {
+    "zone": "CST",
+    "utc_offset_h": -6,
+    "dst": {
+      "zone": "CDT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -5
+    }
+  },
+  "America/Denver": {
+    "zone": "MST",
+    "utc_offset_h": -7,
+    "dst": {
+      "zone": "MDT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -6
+    }
+  },
+  "America/Detroit": {
+    "zone": "EST",
+    "utc_offset_h": -5,
+    "dst": {
+      "zone": "EDT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -4
+    }
+  },
+  "America/Edmonton": {
+    "zone": "MST",
+    "utc_offset_h": -7,
+    "dst": {
+      "zone": "MDT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -6
+    }
+  },
+  "America/El_Salvador": {
+    "zone": "CST",
+    "utc_offset_h": -6
+  },
+  "America/Fortaleza": {
+    "zone": "BRT",
+    "utc_offset_h": -3
+  },
+  "America/Glace_Bay": {
+    "zone": "AST",
+    "utc_offset_h": -4,
+    "dst": {
+      "zone": "ADT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -3
+    }
+  },
+  "America/Godthab": {
+    "zone": "WGT",
+    "utc_offset_h": -3,
+    "dst": {
+      "zone": "WGST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": -2
+    }
+  },
+  "America/Grand_Turk": {
+    "zone": "EST",
+    "utc_offset_h": -5,
+    "dst": {
+      "zone": "EDT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -4
+    }
+  },
+  "America/Guatemala": {
+    "zone": "CST",
+    "utc_offset_h": -6
+  },
+  "America/Halifax": {
+    "zone": "AST",
+    "utc_offset_h": -4,
+    "dst": {
+      "zone": "ADT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -3
+    }
+  },
+  "America/Havana": {
+    "zone": "CST",
+    "utc_offset_h": -5,
+    "dst": {
+      "zone": "CDT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -4
+    }
+  },
+  "America/Indiana/Indianapolis": {
+    "zone": "EST",
+    "utc_offset_h": -5,
+    "dst": {
+      "zone": "EDT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -4
+    }
+  },
+  "America/Indiana/Knox": {
+    "zone": "CST",
+    "utc_offset_h": -6,
+    "dst": {
+      "zone": "CDT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -5
+    }
+  },
+  "America/Jamaica": {
+    "zone": "EST",
+    "utc_offset_h": -5
+  },
+  "America/Los_Angeles": {
+    "zone": "PST",
+    "utc_offset_h": -8,
+    "dst": {
+      "zone": "PDT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -7
+    }
+  },
+  "America/Managua": {
+    "zone": "CST",
+    "utc_offset_h": -6
+  },
+  "America/Mexico_City": {
+    "zone": "CST",
+    "utc_offset_h": -6,
+    "dst": {
+      "zone": "CDT",
+      "start": "first Sunday in April",
+      "end": "last Sunday in October",
+      "utc_offset_h": -5
+    }
+  },
+  "America/Montevideo": {
+    "zone": "UYT",
+    "utc_offset_h": -3
+  },
+  "America/New_York": {
+    "zone": "EST",
+    "utc_offset_h": -5,
+    "dst": {
+      "zone": "EDT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -4
+    }
+  },
+  "America/Panama": {
+    "zone": "EST",
+    "utc_offset_h": -5
+  },
+  "America/Phoenix": {
+    "zone": "MST",
+    "utc_offset_h": -7
+  },
+  "America/Santiago": {
+    "zone": "CLT",
+    "utc_offset_h": -4,
+    "dst": {
+      "zone": "CLST",
+      "start": "first Sunday in September",
+      "end": "first Sunday in April",
+      "utc_offset_h": -3
+    }
+  },
+  "America/Sao_Paulo": {
+    "zone": "BRT",
+    "utc_offset_h": -3,
+    "dst": {
+      "zone": "BRST",
+      "start": "third Sunday in October",
+      "end": "third Sunday in February",
+      "utc_offset_h": -2
+    }
+  },
+  "Asia/Baghdad": {
+    "zone": "AST",
+    "utc_offset_h": 3
+  },
+  "Asia/Baku": {
+    "zone": "AZT",
+    "utc_offset_h": 4,
+    "dst": {
+      "zone": "AZST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 5
+    }
+  },
+  "Asia/Bangkok": {
+    "zone": "ICT",
+    "utc_offset_h": 7
+  },
+  "Asia/Beirut": {
+    "zone": "EET",
+    "utc_offset_h": 2,
+    "dst": {
+      "zone": "EEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 3
+    }
+  },
+  "Asia/Dhaka": {
+    "zone": "BST",
+    "utc_offset_h": 6
+  },
+  "Asia/Dubai": {
+    "zone": "GST",
+    "utc_offset_h": 4
+  },
+  "Asia/Hong_Kong": {
+    "zone": "HKT",
+    "utc_offset_h": 8
+  },
+  "Asia/Ho_Chi_Minh": {
+    "zone": "ICT",
+    "utc_offset_h": 7
+  },
+  "Asia/Jakarta": {
+    "zone": "WIB",
+    "utc_offset_h": 7
+  },
+  "Asia/Jerusalem": {
+    "zone": "IST",
+    "utc_offset_h": 2,
+    "dst": {
+      "zone": "IDT",
+      "start": "last Friday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 3
+    }
+  },
+  "Asia/Kolkata": {
+    "zone": "IST",
+    "utc_offset_h": 5.5
+  },
+  "Asia/Kuala_Lumpur": {
+    "zone": "MYT",
+    "utc_offset_h": 8
+  },
+  "Asia/Kuwait": {
+    "zone": "AST",
+    "utc_offset_h": 3
+  },
+  "Asia/Manila": {
+    "zone": "PHT",
+    "utc_offset_h": 8
+  },
+  "Asia/Riyadh": {
+    "zone": "AST",
+    "utc_offset_h": 3
+  },
+  "Asia/Seoul": {
+    "zone": "KST",
+    "utc_offset_h": 9
+  },
+  "Asia/Shanghai": {
+    "zone": "CST",
+    "utc_offset_h": 8
+  },
+  "Asia/Singapore": {
+    "zone": "SGT",
+    "utc_offset_h": 8
+  },
+  "Asia/Tokyo": {
+    "zone": "JST",
+    "utc_offset_h": 9
+  },
+  "Asia/Yangon": {
+    "zone": "MMT",
+    "utc_offset_h": 6.5
+  },
+  "Atlantic/Azores": {
+    "zone": "AZOT",
+    "utc_offset_h": -1,
+    "dst": {
+      "zone": "AZOST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 0
+    }
+  },
+  "Atlantic/Bermuda": {
+    "zone": "AST",
+    "utc_offset_h": -4,
+    "dst": {
+      "zone": "ADT",
+      "start": "second Sunday in March",
+      "end": "first Sunday in November",
+      "utc_offset_h": -3
+    }
+  },
+  "Atlantic/Canary": {
+    "zone": "WET",
+    "utc_offset_h": 0,
+    "dst": {
+      "zone": "WEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 1
+    }
+  },
+  "Atlantic/Cape_Verde": {
+    "zone": "CVT",
+    "utc_offset_h": -1
+  },
+  "Atlantic/Reykjavik": {
+    "zone": "GMT",
+    "utc_offset_h": 0
+  },
+  "Australia/Adelaide": {
+    "zone": "ACST",
+    "utc_offset_h": 9.5,
+    "dst": {
+      "zone": "ACDT",
+      "start": "first Sunday in October",
+      "end": "first Sunday in April",
+      "utc_offset_h": 10.5
+    }
+  },
+  "Australia/Brisbane": {
+    "zone": "AEST",
+    "utc_offset_h": 10
+  },
+  "Australia/Darwin": {
+    "zone": "ACST",
+    "utc_offset_h": 9.5
+  },
+  "Australia/Hobart": {
+    "zone": "AEST",
+    "utc_offset_h": 10,
+    "dst": {
+      "zone": "AEDT",
+      "start": "first Sunday in October",
+      "end": "first Sunday in April",
+      "utc_offset_h": 11
+    }
+  },
+  "Australia/Perth": {
+    "zone": "AWST",
+    "utc_offset_h": 8
+  },
+  "Australia/Sydney": {
+    "zone": "AEST",
+    "utc_offset_h": 10,
+    "dst": {
+      "zone": "AEDT",
+      "start": "first Sunday in October",
+      "end": "first Sunday in April",
+      "utc_offset_h": 11
+    }
+  },
+  "Europe/Amsterdam": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Athens": {
+    "zone": "EET",
+    "utc_offset_h": 2,
+    "dst": {
+      "zone": "EEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 3
+    }
+  },
+  "Europe/Belgrade": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Berlin": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Brussels": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Bucharest": {
+    "zone": "EET",
+    "utc_offset_h": 2,
+    "dst": {
+      "zone": "EEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 3
+    }
+  },
+  "Europe/Budapest": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Chisinau": {
+    "zone": "EET",
+    "utc_offset_h": 2,
+    "dst": {
+      "zone": "EEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 3
+    }
+  },
+  "Europe/Copenhagen": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Dublin": {
+    "zone": "GMT",
+    "utc_offset_h": 0,
+    "dst": {
+      "zone": "IST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 1
+    }
+  },
+  "Europe/Helsinki": {
+    "zone": "EET",
+    "utc_offset_h": 2,
+    "dst": {
+      "zone": "EEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 3
+    }
+  },
+  "Europe/Istanbul": {
+    "zone": "TRT",
+    "utc_offset_h": 3
+  },
+  "Europe/Kaliningrad": {
+    "zone": "EET",
+    "utc_offset_h": 2
+  },
+  "Europe/Kyiv": {
+    "zone": "EET",
+    "utc_offset_h": 2,
+    "dst": {
+      "zone": "EEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 3
+    }
+  },
+  "Europe/Lisbon": {
+    "zone": "WET",
+    "utc_offset_h": 0,
+    "dst": {
+      "zone": "WEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 1
+    }
+  },
+  "Europe/London": {
+    "zone": "GMT",
+    "utc_offset_h": 0,
+    "dst": {
+      "zone": "BST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 1
+    }
+  },
+  "Europe/Luxembourg": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Madrid": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Minsk": {
+    "zone": "MSK",
+    "utc_offset_h": 3
+  },
+  "Europe/Monaco": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Moscow": {
+    "zone": "MSK",
+    "utc_offset_h": 3
+  },
+  "Europe/Oslo": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Paris": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Prague": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Riga": {
+    "zone": "EET",
+    "utc_offset_h": 2,
+    "dst": {
+      "zone": "EEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 3
+    }
+  },
+  "Europe/Rome": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Samara": {
+    "zone": "SAMT",
+    "utc_offset_h": 4
+  },
+  "Europe/Simferopol": {
+    "zone": "MSK",
+    "utc_offset_h": 3
+  },
+  "Europe/Sofia": {
+    "zone": "EET",
+    "utc_offset_h": 2,
+    "dst": {
+      "zone": "EEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 3
+    }
+  },
+  "Europe/Stockholm": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Tallinn": {
+    "zone": "EET",
+    "utc_offset_h": 2,
+    "dst": {
+      "zone": "EEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 3
+    }
+  },
+  "Europe/Tirane": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Vienna": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Vilnius": {
+    "zone": "EET",
+    "utc_offset_h": 2,
+    "dst": {
+      "zone": "EEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 3
+    }
+  },
+  "Europe/Warsaw": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Europe/Zurich": {
+    "zone": "CET",
+    "utc_offset_h": 1,
+    "dst": {
+      "zone": "CEST",
+      "start": "last Sunday in March",
+      "end": "last Sunday in October",
+      "utc_offset_h": 2
+    }
+  },
+  "Pacific/Auckland": {
+    "zone": "NZST",
+    "utc_offset_h": 12,
+    "dst": {
+      "zone": "NZDT",
+      "start": "last Sunday in September",
+      "end": "first Sunday in April",
+      "utc_offset_h": 13
+    }
+  },
+  "Pacific/Chatham": {
+    "zone": "CHAST",
+    "utc_offset_h": 12.75,
+    "dst": {
+      "zone": "CHADT",
+      "start": "last Sunday in September",
+      "end": "first Sunday in April",
+      "utc_offset_h": 13.75
+    }
+  },
+  "Pacific/Easter": {
+    "zone": "EAST",
+    "utc_offset_h": -6,
+    "dst": {
+      "zone": "EASST",
+      "start": "first Sunday in September",
+      "end": "first Sunday in April",
+      "utc_offset_h": -5
+    }
+  },
+  "Pacific/Fiji": {
+    "zone": "FJT",
+    "utc_offset_h": 12,
+    "dst": {
+      "zone": "FJST",
+      "start": "second Sunday in November",
+      "end": "second Sunday in January",
+      "utc_offset_h": 13
+    }
+  },
+  "Pacific/Guam": {
+    "zone": "ChST",
+    "utc_offset_h": 10
+  },
+  "Pacific/Honolulu": {
+    "zone": "HST",
+    "utc_offset_h": -10
+  },
+  "Pacific/Marquesas": {
+    "zone": "MART",
+    "utc_offset_h": -9.5
+  },
+  "Pacific/Pago_Pago": {
+    "zone": "SST",
+    "utc_offset_h": -11
+  },
+  "Pacific/Tahiti": {
+    "zone": "TAHT",
+    "utc_offset_h": -10
+  }
+}
