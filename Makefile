@@ -34,6 +34,7 @@ test-coverage:
 	go tool cover -html=coverage.out
 
 test-ci:
+	go run main.go update current
 	go test -coverprofile=coverage.txt -covermode=atomic -race -mod=readonly $(GOPACKAGES)
 
 bench: bench-all
@@ -68,5 +69,5 @@ update-tzdata:
 	@echo "--> Updating timzaone data"
 	@echo build binary
 	goreleaser build --single-target --config .github/.goreleaser.yaml --snapshot --clean -o geo2tz
-	./geo2tz update
+	./geo2tz update latest
 	@echo done

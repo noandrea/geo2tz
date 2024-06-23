@@ -79,9 +79,8 @@ func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, erro
 // Lookup returns the timezone ID for a given latitude and longitude
 // if the timezone is not found, it returns an error
 // It first searches in the land index, if not found, it searches in the sea index
-func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (string, error) {
+func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (tzID string, err error) {
 
-	var tzID string
 	g.land.Search(
 		[2]float64{lat, lng},
 		[2]float64{lat, lng},
@@ -91,7 +90,7 @@ func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (string, error) {
 		},
 	)
 
-	if len(tzID) == 0 {
+	if tzID == "" {
 		g.sea.Search(
 			[2]float64{lat, lng},
 			[2]float64{lat, lng},
@@ -102,10 +101,10 @@ func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (string, error) {
 		)
 	}
 
-	if len(tzID) == 0 {
-		return "", ErrNotFound
+	if tzID == "" {
+		err = ErrNotFound
 	}
-	return tzID, nil
+	return
 }
 
 func (g *Geo2TzRTreeIndex) Size() int {
