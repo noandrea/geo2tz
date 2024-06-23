@@ -37,6 +37,14 @@ var (
 )
 
 func main() {
+
+	version := cmd.RuntimeVersion{
+		Version: version,
+		Commit:  commit,
+		Date:    date,
+		BuiltBy: builtBy,
+	}
+
 	if err := cmd.Execute(version); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

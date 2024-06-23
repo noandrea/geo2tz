@@ -14,6 +14,13 @@ var cfgFile string
 var debug bool
 var settings web.ConfigSchema
 
+type RuntimeVersion struct {
+	Version string
+	Commit  string
+	Date    string
+	BuiltBy string
+}
+
 // rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
 	Use:   "geo2tz",
@@ -24,8 +31,8 @@ var rootCmd = &cobra.Command{
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute(v string) error {
-	rootCmd.Version = v
+func Execute(v RuntimeVersion) error {
+	rootCmd.Version = v.Version
 
 	if err := initConfig(); err != nil {
 		return err
