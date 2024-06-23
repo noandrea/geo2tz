@@ -213,7 +213,7 @@ spec:
 
 ```
 
-## Development note_s
+## Development notes
 
 To update the timezone database you have a few options:
 
@@ -226,12 +226,15 @@ geo2tz update latest
 2. update to a specific version
 
 ```console
-geo2tz build 2023b
+geo2tz update 2023b
 ```
 
 
-the `build` command will download the timezone geojson zip and generate a version file in the `tzdata` directory, the version file is used to track the current version of the database.
+the `update` command will download the timezone geojson zip and generate a version file in the `tzdata` directory, the version file is used to track the current version of the database.
 
 
+## Tests and known issues
 
+Automated tests are executed for coordinates with a precision between 1.11m (4 decimals) and 11.1m (5 decimals), the test file is `db/testdata/coordinates.json`.
 
+Some of the location are marked with `err` since they produce incorrect results, this is due to the fact that the timezone boundaries often overlaps. If you have additional test cases that you think are relevant, please open an issue or a PR.
