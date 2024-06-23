@@ -11,8 +11,24 @@ import (
 )
 
 type Geo2TzRTreeIndex struct {
-	rtree.RTreeG[string]
+	land rtree.RTreeG[string]
+	sea  rtree.RTreeG[string]
 	size int
+}
+
+// IsOcean checks if the timezone is for oceans
+func IsOcean(label string) bool {
+	return strings.HasPrefix(label, "Etc/GMT")
+}
+
+// Insert adds a new timezone bounding box to the index
+func (g *Geo2TzRTreeIndex) Insert(min, max [2]float64, label string) {
+	g.size++
+	if IsOcean(label) {
+		g.sea.Insert(min, max, label)
+		return
+	}
+	g.land.Insert(min, max, label)
 }
 
 func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, error) {
@@ -45,11 +61,6 @@ func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, erro
 				}
 			}
 			gri.Insert([2]float64{minLat, minLng}, [2]float64{maxLat, maxLng}, tz.Name)
-			if tz.Name == "Europe/Madrid" {
-				a := tz.Name
-				_ = a
-			}
-			gri.size++
 		}
 		return nil
 	}
@@ -65,20 +76,31 @@ func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, erro
 	return gri, nil
 }
 
+// Lookup returns the timezone ID for a given latitude and longitude
+// if the timezone is not found, it returns an error
+// It first searches in the land index, if not found, it searches in the sea index
 func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (string, error) {
-	var tzID string
-	g.Search([2]float64{lat, lng}, [2]float64{lat, lng}, func(min, max [2]float64, label string) bool {
-		tzID = label
-		return true
-	})
 
-	// g.Nearby(
-	// 	rtree.BoxDist[float64, string]([2]float64{lat, lng}, [2]float64{lat, lng}, nil),
-	// 	func(min, max [2]float64, data string, dist float64) bool {
-	// 		tzID = data
-	// 		return true
-	// 	},
-	// )
+	var tzID string
+	g.land.Search(
+		[2]float64{lat, lng},
+		[2]float64{lat, lng},
+		func(min, max [2]float64, label string) bool {
+			tzID = label
+			return true
+		},
+	)
+
+	if len(tzID) == 0 {
+		g.sea.Search(
+			[2]float64{lat, lng},
+			[2]float64{lat, lng},
+			func(min, max [2]float64, label string) bool {
+				tzID = label
+				return true
+			},
+		)
+	}
 
 	if len(tzID) == 0 {
 		return "", ErrNotFound
