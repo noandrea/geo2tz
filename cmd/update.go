@@ -37,10 +37,13 @@ const (
 var updateCmd = &cobra.Command{
 	Use:   "update VERSION",
 	Short: "Download the timezone data from the latest release or a specific version",
-	Example: `To build from the latest version:
+	Example: `To update using the tzdata/version.json file:
+geo2tz update current
+
+To update to the latest version:
 geo2tz update latest
 
-To build from a specific version:
+To update to a specific version:
 geo2tz update 2023d
 `,
 	Args: cobra.ExactArgs(1),
@@ -65,10 +68,18 @@ func update(versionName, targetFile string) (err error) {
 			return
 		}
 	}
+	// shall we read from the version file?
+	if versionName == "current" {
+		err = helpers.LoadJSON(web.Settings.Tz.VersionFile, &release)
+		if err != nil {
+			return
+		}
+		println("Current version is", release.Version)
+	}
 	if err := fetchAndCacheFile(targetFile, release.GeoDataURL); err != nil {
 		return err
 	}
-	helpers.SaveJSON(release, web.Settings.Tz.VersionFile)
+	err = helpers.SaveJSON(release, web.Settings.Tz.VersionFile)
 	return
 }
 
