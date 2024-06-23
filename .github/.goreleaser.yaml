@@ -25,6 +25,8 @@ builds:
     goarch:
       - amd64
       - arm64
+    hooks:
+      post: "go run main.go update latest"
 changelog:
   use: git
   groups:
@@ -45,7 +47,8 @@ dockers:
     goos: linux
     goarch: amd64
     image_templates:
-      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Version }}-amd64"
+      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:latest"
+      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Version }}"
     build_flag_templates:
       - "--pull"
       - "--platform=linux/amd64"
@@ -55,39 +58,3 @@ dockers:
       - "--label=org.opencontainers.image.version={{.Version}}"
     extra_files:
       - tzdata
-  - use: buildx
-    goos: linux
-    goarch: arm64
-    image_templates:
-      - "ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Version }}-arm64v8"
-    build_flag_templates:
-      - "--pull"
-      - "--platform=linux/arm64"
-      - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title={{.ProjectName}}"
-      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-      - "--label=org.opencontainers.image.version={{.Version}}"
-    extra_files:
-      - tzdata
-docker_manifests:
-  - name_template: ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Version }}
-    image_templates:
-      - ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Version }}-amd64
-      - ghcr.io/{{ .Env.GITHUB_ORG }}/{{ .ProjectName }}:{{ .Version }}-arm64v8
-# nfpms:
-#   - id: packages
-#     maintainer:
-#     # Formats to be generated.
-#     formats:
-#       - deb
-#       - rpm
-#     # contents:
-#     #   # for updstart
-#     #   - src: path/to/local/bar.conf
-#     #     dst: /etc/bar.conf
-#     #     type: "config|noreplace"
-#     #   # for logging
-#     #   - dst: /some/dir
-#     #     type: dir
-#     #     file_info:
-#     #       mode: 0700
