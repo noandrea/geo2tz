@@ -67,7 +67,7 @@ func NewServer(config ConfigSchema) (*Server, error) {
 	// load the database
 	tzDB, err := db.NewGeo2TzRTreeIndexFromGeoJSON(config.Tz.DatabaseName)
 	if err != nil {
-		return nil, err
+		return nil, errors.Join(ErrorDatabaseFileNotFound, err)
 	}
 	server.tzDB = tzDB
 
