@@ -1,4 +1,12 @@
 <a name="unreleased"></a>
+## [2.2.0](https://github.com/noandrea/geo2tz/compare/v2.1.5...v2.2.0) (2024-06-24)
+
+
+### Features
+
+* improve timezone lookup and add tests ([5c00920](https://github.com/noandrea/geo2tz/commit/5c00920c91c19729e9282bbf90b95e7661045e49))
+* use an in memory rtree to find the timezone ([561e500](https://github.com/noandrea/geo2tz/commit/561e500fe7cc88c6f9f33c659620efef434bbead))
+
 ## [2.1.5](https://github.com/noandrea/geo2tz/compare/v2.1.4...v2.1.5) (2024-06-16)
 
 
