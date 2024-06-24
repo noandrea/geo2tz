@@ -4,7 +4,7 @@
 
 A self-host-able service to get the timezone given geo-coordinates (lat/lng)
 
-Timezone data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder) (release [2023b](https://github.com/evansiroky/timezone-boundary-builder/releases/tag/2023b))
+Timezone data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder).Ru
 
 ## Motivations
 
@@ -14,7 +14,7 @@ On another side, this feature is nicely self-contained and having one service to
 
 ## API
 
-the service exposes only one API:
+the service exposes one API to retrieve the timezone given a pair of coordinates:
 
 ```http
 GET /tz/${LATITUDE}/${LONGITUDE}
@@ -69,6 +69,20 @@ curl -v http://localhost:2004/tz/51.477811/1000 | jq
 }
 ```
 
+The version of the database is exposed at `/tz/version`:
+
+```console
+curl -s http://localhost:2004/tz/version | jq
+```
+
+```json
+{
+  "version": "2024a",
+  "url": "https://github.com/evansiroky/timezone-boundary-builder/releases/tag/2024a",
+  "geo_data_url": "https://github.com/evansiroky/timezone-boundary-builder/releases/download/2024a/timezones-with-oceans.geojson.zip"
+}
+```
+
 ### Authorization
 
 Geo2Tz supports a basic token authorization mechanism, if the configuration value for `web.auth_token_value` is a non-empty string, geo2tz will check the query parameter value to authorize incoming requests.
@@ -76,7 +90,7 @@ Geo2Tz supports a basic token authorization mechanism, if the configuration valu
 For example, running the service with:
 
 ```sh
-docker run -p 2004:2004 -e GEO2TZ_WEB_AUTH_TOKEN_VALUE=secret ghcr.io/noandrea/geo2tz:2.1.5
+docker run --pull=always -p 2004:2004 -e GEO2TZ_WEB_AUTH_TOKEN_VALUE=secret ghcr.io/noandrea/geo2tz:latest
 ```
 
 will enable authorization. With the authorization enabled, a query that does not specify the token will fail with an HTTP code 401:
@@ -129,10 +143,10 @@ Passing the token in the query parameters will succeed instead:
 Docker image is available at [geo2tz](https://github.com/noandrea/geo2tz/pkgs/container/geo2tz)
 
 ```sh
-docker run -p 2004:2004 ghcr.io/noandrea/geo2tz:2.1.5
+docker run --pull=always -p 2004:2004 ghcr.io/noandrea/geo2tz:latest
 ```
 
-The image is built on [scratch](https://hub.docker.com/_/scratch), the image size is ~92MB:
+The image is built on [scratch](https://hub.docker.com/_/scratch):
 
 
 ## Docker compose
@@ -144,7 +158,7 @@ version: '3'
 services:
   geo2tz:
     container_name: geo2tz
-    image: ghcr.io/noandrea/geo2tz:2.1.5
+    image: ghcr.io/noandrea/geo2tz:latest
     ports:
     - 2004:2004
     # uncomment to enable authorization via request token
@@ -188,7 +202,7 @@ spec:
         #  value: "t" # default value
         #- name: GEO2TZ_WEB_LISTEN_ADDRESS
         #  value: ":2004" # default value
-        image: ghcr.io/noandrea/geo2tz:2.1.5
+        image: ghcr.io/noandrea/geo2tz:latest
         imagePullPolicy: Always
         name: geo2tz
         ports:
@@ -217,7 +231,13 @@ spec:
 
 To update the timezone database you have a few options:
 
-1. update to the latest version
+1. download the version specified in the `tzdata/version.json` file
+
+```console
+geo2tz update current
+```
+
+2. update to the latest version available
 
 ```console
 geo2tz update latest
