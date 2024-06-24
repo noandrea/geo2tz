@@ -56,7 +56,7 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
       - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v4
+        uses: goreleaser/goreleaser-action@v6
         if: steps.release-please.outputs.release_created
         with:
           args: release --clean --config .github/.goreleaser.yaml
