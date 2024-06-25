@@ -1,4 +1,12 @@
 <a name="unreleased"></a>
+## [2.3.0](https://github.com/noandrea/geo2tz/compare/v2.2.0...v2.3.0) (2024-06-25)
+
+
+### Features
+
+* fail fast if a lat/lng is not found ([37cff76](https://github.com/noandrea/geo2tz/commit/37cff762145f621110e0cb39399583148b2d53cb))
+* improve precision ([a194645](https://github.com/noandrea/geo2tz/commit/a1946451417d87feed0fa4fcf3f353c8f2cdfa09))
+
 ## [2.2.0](https://github.com/noandrea/geo2tz/compare/v2.1.5...v2.2.0) (2024-06-24)
 
 
