@@ -11,8 +11,8 @@ import (
 )
 
 type Geo2TzRTreeIndex struct {
-	land rtree.RTreeG[string]
-	sea  rtree.RTreeG[string]
+	land rtree.RTreeG[timezoneGeo]
+	sea  rtree.RTreeG[timezoneGeo]
 	size int
 }
 
@@ -22,13 +22,13 @@ func IsOcean(label string) bool {
 }
 
 // Insert adds a new timezone bounding box to the index
-func (g *Geo2TzRTreeIndex) Insert(min, max [2]float64, label string) {
+func (g *Geo2TzRTreeIndex) Insert(min, max [2]float64, element timezoneGeo) {
 	g.size++
-	if IsOcean(label) {
-		g.sea.Insert(min, max, label)
+	if IsOcean(element.Name) {
+		g.sea.Insert(min, max, element)
 		return
 	}
-	g.land.Insert(min, max, label)
+	g.land.Insert(min, max, element)
 }
 
 func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, error) {
@@ -45,22 +45,7 @@ func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, erro
 	// this function will add the timezone polygons to the shape index
 	iter := func(tz timezoneGeo) error {
 		for _, p := range tz.Polygons {
-			minLat, minLng, maxLat, maxLng := p.Vertices[0].lat, p.Vertices[0].lng, p.Vertices[0].lat, p.Vertices[0].lng
-			for _, v := range p.Vertices {
-				if v.lng < minLng {
-					minLng = v.lng
-				}
-				if v.lng > maxLng {
-					maxLng = v.lng
-				}
-				if v.lat < minLat {
-					minLat = v.lat
-				}
-				if v.lat > maxLat {
-					maxLat = v.lat
-				}
-			}
-			gri.Insert([2]float64{minLat, minLng}, [2]float64{maxLat, maxLng}, tz.Name)
+			gri.Insert([2]float64{p.MinLat, p.MinLng}, [2]float64{p.MaxLat, p.MaxLng}, tz)
 		}
 		return nil
 	}
@@ -80,22 +65,33 @@ func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, erro
 // if the timezone is not found, it returns an error
 // It first searches in the land index, if not found, it searches in the sea index
 func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (tzID string, err error) {
-
+	// search the land index
 	g.land.Search(
 		[2]float64{lat, lng},
 		[2]float64{lat, lng},
-		func(min, max [2]float64, label string) bool {
-			tzID = label
+		func(min, max [2]float64, data timezoneGeo) bool {
+			for _, p := range data.Polygons {
+				if isPointInPolygonPIP(vertex{lat, lng}, p) {
+					tzID = data.Name
+					return false
+				}
+			}
 			return true
 		},
 	)
 
 	if tzID == "" {
+		// if not found, search the sea index
 		g.sea.Search(
 			[2]float64{lat, lng},
 			[2]float64{lat, lng},
-			func(min, max [2]float64, label string) bool {
-				tzID = label
+			func(min, max [2]float64, data timezoneGeo) bool {
+				for _, p := range data.Polygons {
+					if isPointInPolygonPIP(vertex{lat, lng}, p) {
+						tzID = data.Name
+						return false
+					}
+				}
 				return true
 			},
 		)
@@ -111,6 +107,23 @@ func (g *Geo2TzRTreeIndex) Size() int {
 	return g.size
 }
 
+func isPointInPolygonPIP(point vertex, polygon polygon) bool {
+	oddNodes := false
+	n := len(polygon.Vertices)
+	for i := 0; i < n; i++ {
+		j := (i + 1) % n
+		vi := polygon.Vertices[i]
+		vj := polygon.Vertices[j]
+		// Check if the point lies on an edge of the polygon (including horizontal)
+		if (vi.lng == vj.lng && vi.lng == point.lng && point.lat >= min(vi.lat, vj.lat) && point.lat <= max(vi.lat, vj.lat)) ||
+			((vi.lat < point.lat && point.lat <= vj.lat) || (vj.lat < point.lat && point.lat <= vi.lat)) &&
+				(point.lng < (vj.lng-vi.lng)*(point.lat-vi.lat)/(vj.lat-vi.lat)+vi.lng) {
+			oddNodes = !oddNodes
+		}
+	}
+	return oddNodes
+}
+
 /*
 GeoJSON processing
 */
@@ -119,6 +132,10 @@ GeoJSON processing
 // with a list of vertices [lat, lng]
 type polygon struct {
 	Vertices []vertex
+	MaxLat   float64
+	MinLat   float64
+	MaxLng   float64
+	MinLng   float64
 }
 
 type vertex struct {
@@ -137,6 +154,25 @@ type GeoJSONFeature struct {
 }
 
 func (p *polygon) AddVertex(lat, lng float64) {
+	if len(p.Vertices) == 0 {
+		p.MaxLat = lat
+		p.MinLat = lat
+		p.MaxLng = lng
+		p.MinLng = lng
+	} else {
+		if lat > p.MaxLat {
+			p.MaxLat = lat
+		}
+		if lat < p.MinLat {
+			p.MinLat = lat
+		}
+		if lng > p.MaxLng {
+			p.MaxLng = lng
+		}
+		if lng < p.MinLng {
+			p.MinLng = lng
+		}
+	}
 	p.Vertices = append(p.Vertices, vertex{lat, lng})
 }
 
