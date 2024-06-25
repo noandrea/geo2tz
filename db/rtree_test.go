@@ -14,28 +14,13 @@ func TestGeo2TzTreeIndex_LookupZone(t *testing.T) {
 		Tz       string  `json:"tz"`
 		Lat      float64 `json:"lat"`
 		Lon      float64 `json:"lon"`
-		HasError bool    `json:"err,omitempty"`
+		NotFound bool    `json:"not_found,omitempty"`
 	}
 
 	// load the database
 	gsi, err := NewGeo2TzRTreeIndexFromGeoJSON("../tzdata/timezones.zip")
 	assert.NoError(t, err)
 	assert.NotEmpty(t, gsi.Size())
-
-	// load the timezone references
-	var tzZones map[string]struct {
-		Zone      string  `json:"zone"`
-		UtcOffset float32 `json:"utc_offset_h"`
-		Dst       struct {
-			Start     string  `json:"start"`
-			End       string  `json:"end"`
-			Zone      string  `json:"zone"`
-			UtcOffset float32 `json:"utc_offset_h"`
-		} `json:"dst,omitempty"`
-	}
-	err = helpers.LoadJSON("testdata/zones.json", &tzZones)
-	assert.NoError(t, err)
-	assert.NotEmpty(t, tzZones)
 
 	// load the coordinates
 	err = helpers.LoadJSON("testdata/coordinates.json", &tests)
@@ -45,31 +30,43 @@ func TestGeo2TzTreeIndex_LookupZone(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.Tz, func(t *testing.T) {
 			got, err := gsi.Lookup(tt.Lat, tt.Lon)
-			assert.NoError(t, err)
-
-			if tt.HasError {
-				t.Skip("skipping test as it is expected to fail (know error)")
-			}
-
-			// for oceans do exact match
-			if IsOcean(got) {
-				assert.Equal(t, tt.Tz, got, "expected %s to be %s for https://www.google.com/maps/@%v,%v,12z", tt.Tz, got, tt.Lat, tt.Lon)
+			if tt.NotFound {
+				assert.ErrorIs(t, err, ErrNotFound)
 				return
 			}
-
-			// get the zone for the expected timezone
-			zoneExpected, ok := tzZones[tt.Tz]
-			assert.True(t, ok, "timezone %s not found in zones.json", tt.Tz)
-
-			// get the reference timezone for the expected timezone
-			zoneGot, ok := tzZones[got]
-			assert.True(t, ok, "timezone %s not found in zones.json", got)
-
-			if !ok {
-				assert.Equal(t, zoneExpected.Zone, got, "expected %s (%s) to be %s (%s) for https://www.google.com/maps/@%v,%v,12z", tt.Tz, zoneExpected.Zone, got, zoneGot.Zone, tt.Lat, tt.Lon)
-			} else {
-				assert.Equal(t, zoneExpected.Zone, zoneGot.Zone, "expected %s (%s)  to be %s (%s) for https://www.google.com/maps/@%v,%v,12z", tt.Tz, zoneExpected.Zone, got, zoneGot.Zone, tt.Lat, tt.Lon)
-			}
+			assert.NoError(t, err)
+			assert.Equal(t, got, tt.Tz, "expected %s to be %s for https://www.google.com/maps/@%v,%v,12z", tt.Tz, got, tt.Lat, tt.Lon)
 		})
+	}
+}
+
+// benchmark the lookup function
+func BenchmarkGeo2TzTreeIndex_LookupZone(b *testing.B) {
+	// load the database
+	gsi, err := NewGeo2TzRTreeIndexFromGeoJSON("../tzdata/timezones.zip")
+	assert.NoError(b, err)
+	assert.NotEmpty(b, gsi.Size())
+
+	// load the coordinates
+	var tests []struct {
+		Tz       string  `json:"tz"`
+		Lat      float64 `json:"lat"`
+		Lon      float64 `json:"lon"`
+		NotFound bool    `json:"not_found,omitempty"`
+	}
+	err = helpers.LoadJSON("testdata/coordinates.json", &tests)
+	assert.NoError(b, err)
+	assert.NotEmpty(b, tests)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for _, tt := range tests {
+			_, err := gsi.Lookup(tt.Lat, tt.Lon)
+			if tt.NotFound {
+				assert.ErrorIs(b, err, ErrNotFound)
+				return
+			}
+			assert.NoError(b, err)
+		}
 	}
 }
