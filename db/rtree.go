@@ -65,11 +65,17 @@ func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, erro
 // if the timezone is not found, it returns an error
 // It first searches in the land index, if not found, it searches in the sea index
 func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (tzID string, err error) {
+
+	chances := 5
 	// search the land index
 	g.land.Search(
 		[2]float64{lat, lng},
 		[2]float64{lat, lng},
 		func(min, max [2]float64, data timezoneGeo) bool {
+			chances--
+			if chances == 0 {
+				return false
+			}
 			for _, p := range data.Polygons {
 				if isPointInPolygonPIP(vertex{lat, lng}, p) {
 					tzID = data.Name
@@ -82,10 +88,15 @@ func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (tzID string, err error) {
 
 	if tzID == "" {
 		// if not found, search the sea index
+		chances = 5
 		g.sea.Search(
 			[2]float64{lat, lng},
 			[2]float64{lat, lng},
 			func(min, max [2]float64, data timezoneGeo) bool {
+				chances--
+				if chances == 0 {
+					return false
+				}
 				for _, p := range data.Polygons {
 					if isPointInPolygonPIP(vertex{lat, lng}, p) {
 						tzID = data.Name

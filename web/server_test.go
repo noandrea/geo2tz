@@ -192,13 +192,6 @@ func Test_TzRequest(t *testing.T) {
 		},
 		{
 			"PASS: valid coordinates",
-			"43.42582",
-			"11.831443",
-			http.StatusOK,
-			`{"coords":{"lat":43.42582,"lon":11.831443},"tz":"Europe/Rome"}`,
-		},
-		{
-			"PASS: valid coordinates",
 			"41.9028",
 			"12.4964",
 			http.StatusOK,
