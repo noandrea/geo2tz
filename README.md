@@ -4,7 +4,7 @@
 
 A self-host-able service to get the timezone given geo-coordinates (lat/lng)
 
-Timezone data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder).Ru
+Timezone data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder).
 
 ## Motivations
 
