@@ -3,6 +3,7 @@ package db
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"strings"
 
@@ -32,6 +33,7 @@ func (g *Geo2TzRTreeIndex) Insert(min, max [2]float64, element timezoneGeo) {
 	g.land.Insert(min, max, element)
 }
 
+// NewGeo2TzRTreeIndexFromGeoJSON creates a new Geo2TzRTreeIndex from a GeoJSON file
 func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, error) {
 	// open the zip file
 	zipFile, err := zip.OpenReader(geoJSONPath)
@@ -44,9 +46,9 @@ func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, erro
 	gri := &Geo2TzRTreeIndex{}
 
 	// this function will add the timezone polygons to the shape index
-	iter := func(tz timezoneGeo) error {
+	iter := func(tz *timezoneGeo) error {
 		for _, p := range tz.Polygons {
-			gri.Insert([2]float64{p.MinLat, p.MinLng}, [2]float64{p.MaxLat, p.MaxLng}, tz)
+			gri.Insert([2]float64{p.MinLat, p.MinLng}, [2]float64{p.MaxLat, p.MaxLng}, *tz)
 		}
 		return nil
 	}
@@ -115,10 +117,12 @@ func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (tzID string, err error) {
 	return
 }
 
+// Size returns the number of timezones in the index
 func (g *Geo2TzRTreeIndex) Size() int {
 	return g.size
 }
 
+// isPointInPolygonPIP checks if a point is inside a polygon using the Point in Polygon algorithm
 func isPointInPolygonPIP(point vertex, polygon polygon) bool {
 	oddNodes := false
 	n := len(polygon.Vertices)
@@ -140,8 +144,10 @@ func isPointInPolygonPIP(point vertex, polygon polygon) bool {
 GeoJSON processing
 */
 
-// Polygon represents a polygon
-// with a list of vertices [lat, lng]
+type timezoneGeo struct {
+	Name     string
+	Polygons []polygon
+}
 type polygon struct {
 	Vertices []vertex
 	MaxLat   float64
@@ -150,50 +156,39 @@ type polygon struct {
 	MinLng   float64
 }
 
+func newPolygon() polygon {
+	return polygon{
+		Vertices: make([]vertex, 0),
+		MaxLat:   -90,
+		MinLat:   90,
+		MaxLng:   -180,
+		MinLng:   180,
+	}
+}
+
 type vertex struct {
 	lat, lng float64
 }
 
-type GeoJSONFeature struct {
-	Type       string `json:"type"`
-	Properties struct {
-		TzID string `json:"tzid"`
-	} `json:"properties"`
-	Geometry struct {
-		Item        string        `json:"type"`
-		Coordinates []interface{} `json:"coordinates"`
-	} `json:"geometry"`
-}
-
 func (p *polygon) AddVertex(lat, lng float64) {
-	if len(p.Vertices) == 0 {
+
+	if lat > p.MaxLat {
 		p.MaxLat = lat
-		p.MinLat = lat
-		p.MaxLng = lng
-		p.MinLng = lng
-	} else {
-		if lat > p.MaxLat {
-			p.MaxLat = lat
-		}
-		if lat < p.MinLat {
-			p.MinLat = lat
-		}
-		if lng > p.MaxLng {
-			p.MaxLng = lng
-		}
-		if lng < p.MinLng {
-			p.MinLng = lng
-		}
 	}
+	if lat < p.MinLat {
+		p.MinLat = lat
+	}
+	if lng > p.MaxLng {
+		p.MaxLng = lng
+	}
+	if lng < p.MinLng {
+		p.MinLng = lng
+	}
+
 	p.Vertices = append(p.Vertices, vertex{lat, lng})
 }
 
-type timezoneGeo struct {
-	Name     string
-	Polygons []polygon
-}
-
-func decodeJSON(f *zip.File, iter func(tz timezoneGeo) error) (err error) {
+func decodeJSON(f *zip.File, iter func(tz *timezoneGeo) error) (err error) {
 	var rc io.ReadCloser
 	if rc, err = f.Open(); err != nil {
 		return err
@@ -216,61 +211,73 @@ func decodeJSON(f *zip.File, iter func(tz timezoneGeo) error) (err error) {
 	return errors.New("error no features found")
 }
 
-func decodeFeatures(dec *json.Decoder, fn func(tz timezoneGeo) error) error {
-	var f GeoJSONFeature
+func decodeFeatures(dec *json.Decoder, fn func(tz *timezoneGeo) error) error {
 	var err error
+	toPolygon := func(raw any) (polygon, error) {
+		container, ok := raw.([]any)
+		if !ok {
+			return polygon{}, fmt.Errorf("invalid polygon data, expected[][]any, got %T", raw)
+		}
+
+		p := newPolygon()
+		for _, c := range container {
+			c, ok := c.([]any)
+			if !ok {
+				return p, fmt.Errorf("invalid container data, expected []any, got %T", c)
+			}
+			if len(c) != 2 {
+				return p, fmt.Errorf("invalid point data, expected 2, got %v", len(c))
+			}
+			lat, ok := c[1].(float64)
+			if !ok {
+				return p, fmt.Errorf("invalid lat data, float64, got %T", c)
+			}
+			lng, ok := c[0].(float64)
+			if !ok {
+				return p, fmt.Errorf("invalid lng data, float64, got %T", c)
+			}
+			p.AddVertex(lat, lng)
+		}
+		return p, nil
+	}
+
+	var f struct {
+		Type       string `json:"type"`
+		Properties struct {
+			TzID string `json:"tzid"`
+		} `json:"properties"`
+		Geometry struct {
+			Item        string `json:"type"`
+			Coordinates []any  `json:"coordinates"`
+		} `json:"geometry"`
+	}
 
 	for dec.More() {
 		if err = dec.Decode(&f); err != nil {
 			return err
 		}
-		var pp []polygon
+		tg := &timezoneGeo{Name: f.Properties.TzID}
 		switch f.Geometry.Item {
 		case "Polygon":
-			pp = decodePolygons(f.Geometry.Coordinates)
+			// we ignore the holes, that is why we only take the first block of coordinates
+			p, err := toPolygon(f.Geometry.Coordinates[0])
+			if err != nil {
+				return err
+			}
+			tg.Polygons = []polygon{p}
 		case "MultiPolygon":
-			pp = decodeMultiPolygons(f.Geometry.Coordinates)
+			for _, multi := range f.Geometry.Coordinates {
+				// we ignore the holes, that is why we only take the first block of coordinates
+				p, err := toPolygon(multi.([]any)[0])
+				if err != nil {
+					return err
+				}
+				tg.Polygons = append(tg.Polygons, p)
+			}
 		}
-		if err = fn(timezoneGeo{Name: f.Properties.TzID, Polygons: pp}); err != nil {
+		if err = fn(tg); err != nil {
 			return err
 		}
 	}
-
 	return nil
-}
-
-// decodePolygons
-// GeoJSON Spec https://geojson.org/geojson-spec.html
-// Coordinates: [Longitude, Latitude]
-func decodePolygons(polygons []interface{}) []polygon {
-	var pp []polygon
-	for _, points := range polygons {
-		p := polygon{}
-		for _, i := range points.([]interface{}) {
-			if latlng, ok := i.([]interface{}); ok {
-				p.AddVertex(latlng[1].(float64), latlng[0].(float64))
-			}
-		}
-		pp = append(pp, p)
-	}
-	return pp
-}
-
-// decodeMultiPolygons
-// GeoJSON Spec https://geojson.org/geojson-spec.html
-// Coordinates: [Longitude, Latitude]
-func decodeMultiPolygons(polygons []interface{}) []polygon {
-	var pp []polygon
-	for _, v := range polygons {
-		p := polygon{}
-		for _, points := range v.([]interface{}) { // 2
-			for _, i := range points.([]interface{}) {
-				if latlng, ok := i.([]interface{}); ok {
-					p.AddVertex(latlng[1].(float64), latlng[0].(float64))
-				}
-			}
-		}
-		pp = append(pp, p)
-	}
-	return pp
 }
