@@ -1,4 +1,12 @@
 <a name="unreleased"></a>
+## [2.4.0](https://github.com/noandrea/geo2tz/compare/v2.3.0...v2.4.0) (2024-06-29)
+
+
+### Features
+
+* improve geojson parser ([370804c](https://github.com/noandrea/geo2tz/commit/370804cb5143a262557cd08495f84724518dea19))
+* remove unnecessary Size function ([e3acbd5](https://github.com/noandrea/geo2tz/commit/e3acbd57d638f84e2177fd64bac0a4eedd47198d))
+
 ## [2.3.0](https://github.com/noandrea/geo2tz/compare/v2.2.0...v2.3.0) (2024-06-25)
 
 
