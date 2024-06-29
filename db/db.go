@@ -4,7 +4,6 @@ import "errors"
 
 type TzDBIndex interface {
 	Lookup(lat, lon float64) (string, error)
-	Size() int
 }
 
 var (
