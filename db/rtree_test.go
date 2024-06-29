@@ -21,7 +21,6 @@ func TestGeo2TzTreeIndex_LookupZone(t *testing.T) {
 	// load the database
 	gsi, err := NewGeo2TzRTreeIndexFromGeoJSON("../tzdata/timezones.zip")
 	assert.NoError(t, err)
-	assert.NotEmpty(t, gsi.Size())
 
 	// load the coordinates
 	err = helpers.LoadJSON("testdata/coordinates.json", &tests)
@@ -46,7 +45,6 @@ func BenchmarkGeo2TzTreeIndex_LookupZone(b *testing.B) {
 	// load the database
 	gsi, err := NewGeo2TzRTreeIndexFromGeoJSON("../tzdata/timezones.zip")
 	assert.NoError(b, err)
-	assert.NotEmpty(b, gsi.Size())
 
 	// load the coordinates
 	var tests []struct {

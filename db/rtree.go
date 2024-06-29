@@ -15,7 +15,6 @@ import (
 type Geo2TzRTreeIndex struct {
 	land rtree.RTreeG[timezoneGeo]
 	sea  rtree.RTreeG[timezoneGeo]
-	size int
 }
 
 // IsOcean checks if the timezone is for oceans
@@ -25,7 +24,6 @@ func IsOcean(label string) bool {
 
 // Insert adds a new timezone bounding box to the index
 func (g *Geo2TzRTreeIndex) Insert(min, max [2]float64, element timezoneGeo) {
-	g.size++
 	if IsOcean(element.Name) {
 		g.sea.Insert(min, max, element)
 		return
@@ -115,11 +113,6 @@ func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (tzID string, err error) {
 		err = ErrNotFound
 	}
 	return
-}
-
-// Size returns the number of timezones in the index
-func (g *Geo2TzRTreeIndex) Size() int {
-	return g.size
 }
 
 // isPointInPolygonPIP checks if a point is inside a polygon using the Point in Polygon algorithm
