@@ -6,7 +6,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/klauspost/compress/zip"
+	"archive/zip"
+
 	"github.com/tidwall/rtree"
 )
 
