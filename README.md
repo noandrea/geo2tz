@@ -6,11 +6,18 @@ A self-host-able service to get the timezone given geo-coordinates (lat/lng)
 
 Timezone data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder).
 
+## Maturity Level
+
+This project is considered mature and stable, having undergone extensive testing and refinement over time. It is now in a state where it can be reliably used in production environments. The following statistic shows the number of docker pulls for the project:  
+
+![Docker Pulls](https://img.shields.io/docker/pulls/noandrea/geo2tz?style=for-the-badge)
+
+### Contributing
+We value your feedback and contributions! If you encounter any bugs or have ideas for new features, please don't hesitate to [open an issue](). Your input is crucial in helping us improve and evolve the project.
+
 ## Motivations
 
-Geo-coordinates might be sensitive information to share in any context,
-and I needed a self-hosted solution to ensure that coordinates were not leaked to 3rd party services.
-On another side, this feature is nicely self-contained and having one service to expose it spares the effort to bundle the TZ database everywhere.
+Geo-coordinates might be sensitive information to share in any context, this project provides a privacy-friendly, self-hosted solution to ensure that coordinates were not leaked to 3rd party services.
 
 ## API
 
