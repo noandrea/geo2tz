@@ -13,7 +13,7 @@ This project is considered mature and stable, having undergone extensive testing
 ![Docker Pulls](https://img.shields.io/docker/pulls/noandrea/geo2tz?style=for-the-badge)
 
 ### Contributing
-We value your feedback and contributions! If you encounter any bugs or have ideas for new features, please don't hesitate to [open an issue](). Your input is crucial in helping us improve and evolve the project.
+We value your feedback and contributions! If you encounter any bugs or have ideas for new features, please don't hesitate to [open an issue](https://github.com/noandrea/geo2tz/issues/new). Your input is crucial in helping us improve and evolve the project.
 
 ## Motivations
 
