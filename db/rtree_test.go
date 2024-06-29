@@ -1,6 +1,7 @@
 package db
 
 import (
+	"archive/zip"
 	"testing"
 
 	"github.com/noandrea/geo2tz/v2/helpers"
@@ -31,7 +32,7 @@ func TestGeo2TzTreeIndex_LookupZone(t *testing.T) {
 		t.Run(tt.Tz, func(t *testing.T) {
 			got, err := gsi.Lookup(tt.Lat, tt.Lon)
 			if tt.NotFound {
-				assert.ErrorIs(t, err, ErrNotFound)
+				assert.ErrorIs(t, err, ErrNotFound, "expected %s to be not_found for https://www.google.com/maps/@%v,%v,12z", got, tt.Lat, tt.Lon)
 				return
 			}
 			assert.NoError(t, err)
@@ -69,4 +70,31 @@ func BenchmarkGeo2TzTreeIndex_LookupZone(b *testing.B) {
 			assert.NoError(b, err)
 		}
 	}
+}
+
+func Test_decodeJSON(t *testing.T) {
+
+	expected := map[string][]int{
+		"Africa/Bamako":    {29290},
+		"America/New_York": {459, 31606, 17},
+		"Asia/Tokyo":       {133, 129, 129, 139, 55, 127, 22, 17, 148, 18, 17, 162, 129, 129, 198, 424, 129, 33, 26, 92, 634, 754, 1019, 518, 149, 2408},
+		"Australia/Sydney": {43621},
+		"Europe/Rome":      {114, 137, 217, 51, 567, 53273, 238, 948},
+	}
+
+	zipFile, err := zip.OpenReader("testdata/timezones.zip")
+	assert.NoError(t, err)
+
+	iter := func(tz timezoneGeo) error {
+		assert.Contains(t, expected, tz.Name)
+		assert.Len(t, tz.Polygons, len(expected[tz.Name]))
+		for i, p := range tz.Polygons {
+			assert.Equal(t, expected[tz.Name][i], len(p.Vertices), "expected %d vertices, got %d", expected[tz.Name][i], len(p.Vertices))
+		}
+		return nil
+	}
+
+	err = decodeJSON(zipFile.File[0], iter)
+	assert.NoError(t, err)
+
 }
