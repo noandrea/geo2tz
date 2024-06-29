@@ -25,8 +25,7 @@
     "lat": 43.42582,
     "lon": 11.831443,
     "tz": "Europe/Rome",
-    "note": "https://github.com/noandrea/geo2tz/issues/22",
-    "not_found": true
+    "note": "https://github.com/noandrea/geo2tz/issues/22"
   },
   { "lat": 32.7767, "lon": -96.797, "tz": "America/Chicago" },
   { "lat": 34.0522, "lon": -118.2437, "tz": "America/Los_Angeles" },
@@ -54,8 +53,7 @@
   {
     "lat": 33.8688,
     "lon": 151.2093,
-    "tz": "Australia/Sydney",
-    "not_found": true,
+    "tz": "Etc/GMT-10",
     "note": "it's in the middle of the ocean"
   },
   { "lat": 50.1109, "lon": 8.6821, "tz": "Europe/Berlin" },

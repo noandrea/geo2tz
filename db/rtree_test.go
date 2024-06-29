@@ -74,22 +74,25 @@ func BenchmarkGeo2TzTreeIndex_LookupZone(b *testing.B) {
 
 func Test_decodeJSON(t *testing.T) {
 
+	// lis of expected polygons with the number of vertices
 	expected := map[string][]int{
 		"Africa/Bamako":    {29290},
 		"America/New_York": {459, 31606, 17},
 		"Asia/Tokyo":       {133, 129, 129, 139, 55, 127, 22, 17, 148, 18, 17, 162, 129, 129, 198, 424, 129, 33, 26, 92, 634, 754, 1019, 518, 149, 2408},
 		"Australia/Sydney": {43621},
-		"Europe/Rome":      {114, 137, 217, 51, 567, 53273, 238, 948},
+		"Europe/Berlin":    {151051, 5, 20, 150, 60, 605, 341},
+		"Europe/Rome":      {114, 137, 217, 51, 567, 53273},
 	}
+
+	got := map[string][]int{}
 
 	zipFile, err := zip.OpenReader("testdata/timezones.zip")
 	assert.NoError(t, err)
 
-	iter := func(tz timezoneGeo) error {
-		assert.Contains(t, expected, tz.Name)
-		assert.Len(t, tz.Polygons, len(expected[tz.Name]))
-		for i, p := range tz.Polygons {
-			assert.Equal(t, expected[tz.Name][i], len(p.Vertices), "expected %d vertices, got %d", expected[tz.Name][i], len(p.Vertices))
+	iter := func(tz *timezoneGeo) error {
+		got[tz.Name] = []int{}
+		for _, p := range tz.Polygons {
+			got[tz.Name] = append(got[tz.Name], len(p.Vertices))
 		}
 		return nil
 	}
@@ -97,4 +100,16 @@ func Test_decodeJSON(t *testing.T) {
 	err = decodeJSON(zipFile.File[0], iter)
 	assert.NoError(t, err)
 
+	for expectedTz, expectedPolySizes := range expected {
+		gotPolySizes, ok := got[expectedTz]
+		assert.True(t, ok, "expected %s to be in the got map", expectedTz)
+		areEq := assert.Equal(t, len(expectedPolySizes), len(gotPolySizes), "expected %s to have %d polygons, got %d", expectedTz, len(expectedPolySizes), len(gotPolySizes))
+
+		if !areEq {
+			continue
+		}
+		for i := range expectedPolySizes {
+			assert.Equal(t, expectedPolySizes[i], gotPolySizes[i], "expected %s to have polygon %d with %d vertices, got %d", expectedTz, i, expectedPolySizes[i], gotPolySizes[i])
+		}
+	}
 }
