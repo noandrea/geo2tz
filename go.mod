@@ -3,7 +3,6 @@ module github.com/noandrea/geo2tz/v2
 go 1.21
 
 require (
-	github.com/klauspost/compress v1.17.9
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
