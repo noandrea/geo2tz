@@ -103,7 +103,7 @@ func NewServer(config ConfigSchema) (*Server, error) {
 
 	// register routes
 	server.echo.GET("/tz/:lat/:lon", server.handleTzRequest)
-	server.echo.GET("/tz/version", server.handleTzVersion)
+	server.echo.GET("/tz/version", server.handleTzVersionRequest)
 	server.echo.GET("/time/:tzID", server.handleTimeRequest)
 
 	return &server, nil
@@ -139,7 +139,6 @@ func (server *Server) handleTzRequest(c echo.Context) error {
 		server.echo.Logger.Errorf("error parsing longitude: %v", err)
 		return c.JSON(http.StatusBadRequest, newErrResponse(err))
 	}
-
 	// query the coordinates
 	res, err := server.tzDB.Lookup(lat, lon)
 	switch err {
@@ -164,7 +163,7 @@ func newErrResponse(err error) map[string]any {
 	return map[string]any{"message": err.Error()}
 }
 
-func (server *Server) handleTzVersion(c echo.Context) error {
+func (server *Server) handleTzVersionRequest(c echo.Context) error {
 	return c.JSON(http.StatusOK, server.tzRelease)
 }
 

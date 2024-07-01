@@ -154,7 +154,7 @@ func Test_TzVersion(t *testing.T) {
 	c.SetPath("/tz/version")
 
 	// Assertions
-	if assert.NoError(t, server.handleTzVersion(c)) {
+	if assert.NoError(t, server.handleTzVersionRequest(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		var version TzRelease
 		reply := rec.Body.String()
