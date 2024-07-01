@@ -94,19 +94,29 @@ func NewServer(config ConfigSchema) (*Server, error) {
 	// register routes
 	server.echo.GET("/tz/:lat/:lon", server.handleTzRequest)
 	server.echo.GET("/tz/version", server.handleTzVersion)
+	server.echo.GET("/time/:tzID", server.handleTimeRequest)
 
 	return &server, nil
 }
 
-func (server *Server) handleTzRequest(c echo.Context) error {
-	// token verification
-	if server.authEnabled {
-		requestToken := c.QueryParam(server.config.Web.AuthTokenParamName)
-		if !isEq(server.authHashedToken, requestToken) {
-			server.echo.Logger.Errorf("request unauthorized, invalid token: %v", requestToken)
-			return c.JSON(http.StatusUnauthorized, map[string]interface{}{"message": "unauthorized"})
-		}
+func (server *Server) handleTimeRequest(c echo.Context) error {
+	tzID := c.Param("tzID")
+	local, utc, isDST, zone, offset, err := server.tzDB.LookupTime(tzID)
+	if err != nil {
+		server.echo.Logger.Errorf("error loading timezone %s: %v", tzID, err)
+		return c.JSON(http.StatusNotFound, newErrResponse(err))
 	}
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"local":  local.Format(time.RFC3339),
+		"utc":    utc.Format(time.RFC3339),
+		"is_dst": isDST,
+		"offset": offset,
+		"zone":   zone,
+		"tz":     tzID,
+	})
+}
+
+func (server *Server) handleTzRequest(c echo.Context) error {
 	// parse latitude
 	lat, err := parseCoordinate(c.Param(Latitude), Latitude)
 	if err != nil {

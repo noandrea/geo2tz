@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"time"
 
 	"archive/zip"
 
@@ -112,6 +113,20 @@ func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (tzID string, err error) {
 	if tzID == "" {
 		err = ErrNotFound
 	}
+	return
+}
+
+func (*Geo2TzRTreeIndex) LookupTime(tzID string) (local, utc time.Time, isDST bool, zone string, offset int, err error) {
+	tz, err := time.LoadLocation(tzID)
+	if err != nil {
+		err = errors.Join(ErrNotFound, err)
+		return
+	}
+	local = time.Now().In(tz)
+	isDST = local.IsDST()
+	utc = local.UTC()
+	zone, offset = local.Zone()
+	offset /= 3600 // from seconds to hours
 	return
 }
 

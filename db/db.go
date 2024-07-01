@@ -1,9 +1,13 @@
 package db
 
-import "errors"
+import (
+	"errors"
+	"time"
+)
 
 type TzDBIndex interface {
 	Lookup(lat, lon float64) (string, error)
+	LookupTime(tzID string) (local, utc time.Time, isDST bool, zone string, offset int, err error)
 }
 
 var (
