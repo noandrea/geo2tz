@@ -1,5 +1,10 @@
 [
   {
+    "lat": 0,
+    "lon": 0,
+    "tz": "Etc/GMT"
+  },
+  {
     "lat": 50,
     "lon": 40,
     "tz": "Europe/Moscow",
