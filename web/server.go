@@ -72,10 +72,20 @@ func NewServer(config ConfigSchema) (*Server, error) {
 	server.tzDB = tzDB
 
 	// check token authorization
-	server.authHashedToken = hash(config.Web.AuthTokenValue)
 	if len(config.Web.AuthTokenValue) > 0 {
 		server.echo.Logger.Info("Authorization enabled")
-		server.authEnabled = true
+		server.authHashedToken = hash(config.Web.AuthTokenValue)
+		authMiddleware := middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
+			KeyLookup: fmt.Sprintf("query:%s,header:%s", config.Web.AuthTokenParamName, config.Web.AuthTokenParamName),
+			Validator: func(key string, c echo.Context) (bool, error) {
+				return isEq(server.authHashedToken, key), nil
+			},
+			ErrorHandler: func(err error, c echo.Context) error {
+				server.echo.Logger.Errorf("request unauthorized, invalid token", err)
+				return c.JSON(http.StatusUnauthorized, map[string]interface{}{"message": "unauthorized"})
+			},
+		})
+		server.echo.Use(authMiddleware)
 	} else {
 		server.echo.Logger.Info("Authorization disabled")
 	}
