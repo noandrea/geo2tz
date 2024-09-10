@@ -116,17 +116,39 @@ func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (tzID string, err error) {
 	return
 }
 
-func (*Geo2TzRTreeIndex) LookupTime(tzID string) (local, utc time.Time, isDST bool, zone string, offset int, err error) {
+func (*Geo2TzRTreeIndex) LookupTime(tzID string) (zr ZoneReply, err error) {
 	tz, err := time.LoadLocation(tzID)
 	if err != nil {
 		err = errors.Join(ErrNotFound, err)
 		return
 	}
-	local = time.Now().In(tz)
-	isDST = local.IsDST()
-	utc = local.UTC()
-	zone, offset = local.Zone()
-	offset /= 3600 // from seconds to hours
+
+	local := time.Now().In(tz)
+	zone, offset := local.Zone()
+
+	zr = ZoneReply{
+		Local:  local,
+		UTC:    local.UTC(),
+		IsDST:  local.IsDST(),
+		Offset: offset / 3600, // from seconds to hours
+		Zone:   zone,
+	}
+
+	return
+}
+
+func (g *Geo2TzRTreeIndex) LookupZone(lat, lng float64) (zr ZoneReply, err error) {
+	tzID, err := g.Lookup(lat, lng)
+	if err != nil {
+		return
+	}
+	zr, err = g.LookupTime(tzID)
+	if err != nil {
+		return
+	}
+	zr.TZ = tzID
+	zr.Coords.Lat = lat
+	zr.Coords.Lon = lng
 	return
 }
 

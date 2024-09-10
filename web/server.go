@@ -111,19 +111,12 @@ func NewServer(config ConfigSchema) (*Server, error) {
 
 func (server *Server) handleTimeRequest(c echo.Context) error {
 	tzID := c.Param("tzID")
-	local, utc, isDST, zone, offset, err := server.tzDB.LookupTime(tzID)
+	zr, err := server.tzDB.LookupTime(tzID)
 	if err != nil {
 		server.echo.Logger.Errorf("error loading timezone %s: %v", tzID, err)
 		return c.JSON(http.StatusNotFound, newErrResponse(err))
 	}
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"local":  local.Format(time.RFC3339),
-		"utc":    utc.Format(time.RFC3339),
-		"is_dst": isDST,
-		"offset": offset,
-		"zone":   zone,
-		"tz":     tzID,
-	})
+	return c.JSON(http.StatusOK, zr)
 }
 
 func (server *Server) handleTzRequest(c echo.Context) error {
