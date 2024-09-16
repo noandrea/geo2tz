@@ -1,4 +1,11 @@
 <a name="unreleased"></a>
+## [2.5.0](https://github.com/noandrea/geo2tz/compare/v2.4.0...v2.5.0) (2024-09-16)
+
+
+### Features
+
+* update tzdata to 2024b ([86f0b97](https://github.com/noandrea/geo2tz/commit/86f0b97d607152974ac6fe2685837b9df6a14d77))
+
 ## [2.4.0](https://github.com/noandrea/geo2tz/compare/v2.3.0...v2.4.0) (2024-06-29)
 
 
