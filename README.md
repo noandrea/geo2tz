@@ -6,6 +6,8 @@ A self-host-able service to get the timezone given geo-coordinates (lat/lng)
 
 Timezone data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder).
 
+[![Stand With Ukraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/banner2-direct.svg)](https://stand-with-ukraine.pp.ua/)
+
 ## Maturity Level
 
 This project is considered mature and stable, having undergone extensive testing and refinement over time. It is now in a state where it can be reliably used in production environments. The following statistic shows the number of docker pulls for the project:  
