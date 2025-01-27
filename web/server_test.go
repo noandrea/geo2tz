@@ -154,7 +154,7 @@ func Test_TzVersion(t *testing.T) {
 	c.SetPath("/tz/version")
 
 	// Assertions
-	if assert.NoError(t, server.handleTzVersion(c)) {
+	if assert.NoError(t, server.handleTzVersionRequest(c)) {
 		assert.Equal(t, http.StatusOK, rec.Code)
 		var version TzRelease
 		reply := rec.Body.String()
@@ -233,6 +233,60 @@ func Test_TzRequest(t *testing.T) {
 			if assert.NoError(t, server.handleTzRequest(c)) {
 				assert.Equal(t, tt.wantCode, rec.Code)
 				assert.Equal(t, tt.wantReply, strings.TrimSpace(rec.Body.String()))
+			}
+		})
+	}
+}
+
+func Test_Auth(t *testing.T) {
+	settings := ConfigSchema{
+		Tz: TzSchema{
+			VersionFile:  "../tzdata/version.json",
+			DatabaseName: "../tzdata/timezones.zip",
+		},
+		Web: WebSchema{
+			AuthTokenValue:     "test",
+			AuthTokenParamName: "t",
+		},
+	}
+	server, err := NewServer(settings)
+	assert.NoError(t, err)
+
+	tests := []struct {
+		name     string
+		reqPath  string
+		wantCode int
+	}{
+		{
+			"OK: version endpoint valid token",
+			"tz/version?t=test",
+			http.StatusOK,
+		},
+		{
+			"OK: version endpoint valid token",
+			"tz/version?t=invalid",
+			http.StatusUnauthorized,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
+			rec := httptest.NewRecorder()
+			c := server.echo.NewContext(req, rec)
+			c.SetPath(tt.reqPath)
+
+			fn := server.handleTzRequest(c)
+			if strings.HasPrefix(tt.reqPath, "tz/version") {
+				fn = server.handleTzVersionRequest(c)
+			}
+			if strings.HasPrefix(tt.reqPath, "time/") {
+				fn = server.handleTimeRequest(c)
+			}
+
+			// Assertions
+			if assert.NoError(t, fn) {
+				assert.Equal(t, tt.wantCode, rec.Code)
 			}
 		})
 	}
