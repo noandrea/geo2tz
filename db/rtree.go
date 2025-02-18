@@ -13,8 +13,9 @@ import (
 )
 
 type Geo2TzRTreeIndex struct {
-	land rtree.RTreeG[timezoneGeo]
-	sea  rtree.RTreeG[timezoneGeo]
+	max_lookups int
+	land        rtree.RTreeG[timezoneGeo]
+	sea         rtree.RTreeG[timezoneGeo]
 }
 
 // IsOcean checks if the timezone is for oceans
@@ -41,7 +42,9 @@ func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, erro
 	defer zipFile.Close()
 
 	// create a new shape index
-	gri := &Geo2TzRTreeIndex{}
+	gri := &Geo2TzRTreeIndex{
+		max_lookups: 30,
+	}
 
 	// this function will add the timezone polygons to the shape index
 	iter := func(tz *timezoneGeo) error {
@@ -67,14 +70,14 @@ func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, erro
 // It first searches in the land index, if not found, it searches in the sea index
 func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (tzID string, err error) {
 
-	chances := 5
+	lookup_num := 0
 	// search the land index
 	g.land.Search(
 		[2]float64{lat, lng},
 		[2]float64{lat, lng},
 		func(min, max [2]float64, data timezoneGeo) bool {
-			chances--
-			if chances == 0 {
+			lookup_num++
+			if lookup_num >= g.max_lookups {
 				return false
 			}
 			for _, p := range data.Polygons {
@@ -89,13 +92,13 @@ func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (tzID string, err error) {
 
 	if tzID == "" {
 		// if not found, search the sea index
-		chances = 5
+		lookup_num = 0
 		g.sea.Search(
 			[2]float64{lat, lng},
 			[2]float64{lat, lng},
 			func(min, max [2]float64, data timezoneGeo) bool {
-				chances--
-				if chances == 0 {
+				lookup_num++
+				if lookup_num >= g.max_lookups {
 					return false
 				}
 				for _, p := range data.Polygons {

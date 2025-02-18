@@ -146,5 +146,7 @@
   { "lat": 39.9042, "lon": 116.4074, "tz": "Asia/Shanghai" },
   { "lat": 48.8566, "lon": 2.3522, "tz": "Europe/Paris" },
   { "lat": 31.2304, "lon": 121.4737, "tz": "Asia/Shanghai" },
-  { "lat": 52.3676, "lon": 4.9041, "tz": "Europe/Amsterdam" }
+  { "lat": 52.3676, "lon": 4.9041, "tz": "Europe/Amsterdam" },
+  { "lat": 53, "lon": 83, "tz": "Asia/Barnaul" },
+  { "lat": 53.3357911103805, "lon": 83.6486383092998, "tz": "Asia/Barnaul" }
 ]
