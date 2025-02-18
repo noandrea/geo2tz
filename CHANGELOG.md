@@ -1,4 +1,11 @@
 <a name="unreleased"></a>
+## [2.6.1](https://github.com/noandrea/geo2tz/compare/v2.6.0...v2.6.1) (2025-02-18)
+
+
+### Bug Fixes
+
+* increase lookups limits ([2195c72](https://github.com/noandrea/geo2tz/commit/2195c7275c9a243edb9dc2ffe520b913b9c49156))
+
 ## [2.6.0](https://github.com/noandrea/geo2tz/compare/v2.5.0...v2.6.0) (2025-01-21)
 
 
