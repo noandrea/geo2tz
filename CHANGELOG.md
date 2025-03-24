@@ -1,4 +1,11 @@
 <a name="unreleased"></a>
+## [2.7.0](https://github.com/noandrea/geo2tz/compare/v2.6.1...v2.7.0) (2025-03-24)
+
+
+### Features
+
+* update tx database to v2025b ([978b9d9](https://github.com/noandrea/geo2tz/commit/978b9d983eab17dfdb0bbddd6ddef9031d878998))
+
 ## [2.6.1](https://github.com/noandrea/geo2tz/compare/v2.6.0...v2.6.1) (2025-02-18)
 
 
