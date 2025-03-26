@@ -32,6 +32,9 @@ func start(*cobra.Command, []string) {
 | |__| |  __/ (_) / /_| |_ / /
  \_____|\___|\___/____|\__/___| version %s
 `, rootCmd.Version)
+	// print example request
+	log.Printf("example tz request: curl -s 'http://localhost:2004/tz/45.4642/9.1900'\n")
+	log.Printf("example time request: curl -s 'http://localhost:2004/time/Europe/Rome'\n")
 	// Start server
 	server, err := web.NewServer(settings)
 	if err != nil {
