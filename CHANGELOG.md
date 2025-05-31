@@ -1,4 +1,11 @@
 <a name="unreleased"></a>
+## [2.7.1](https://github.com/noandrea/geo2tz/compare/v2.7.0...v2.7.1) (2025-05-31)
+
+
+### Bug Fixes
+
+* update deps (cross-site scripting vul) ([7409c8b](https://github.com/noandrea/geo2tz/commit/7409c8b049af371df5a9808de1a1e9ad02219bce))
+
 ## [2.7.0](https://github.com/noandrea/geo2tz/compare/v2.6.1...v2.7.0) (2025-03-24)
 
 
