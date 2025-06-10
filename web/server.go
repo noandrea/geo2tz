@@ -12,7 +12,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/noandrea/geo2tz/v2/db"
+	"github.com/noandrea/geo2tz/v2/core"
+	"github.com/noandrea/geo2tz/v2/core/db"
 	"github.com/noandrea/geo2tz/v2/helpers"
 
 	"golang.org/x/crypto/blake2b"
@@ -119,13 +120,22 @@ func (server *Server) handleTzRequest(c echo.Context) error {
 		server.echo.Logger.Errorf("error parsing longitude: %v", err)
 		return c.JSON(http.StatusBadRequest, newErrResponse(err))
 	}
+	// parse exteneded paramter
+	timeInfo, err := parseTimeInfo(c.QueryParam("time_info"))
+	if err != nil {
+		server.echo.Logger.Errorf("error parsing time info: %v", err)
+		return c.JSON(http.StatusBadRequest, newErrResponse(err))
+	}
 
 	// query the coordinates
-	res, err := server.tzDB.Lookup(lat, lon)
+	tzInfo, err := server.tzDB.Lookup(lat, lon)
 	switch err {
 	case nil:
-		tzr := newTzResponse(res, lat, lon)
-		return c.JSON(http.StatusOK, tzr)
+		// get the time
+		if !timeInfo.IsZero() {
+			core.ComputeTimeData(&tzInfo, timeInfo)
+		}
+		return c.JSON(http.StatusOK, tzInfo)
 	case db.ErrNotFound:
 		notFoundErr := fmt.Errorf("timezone not found for coordinates %f,%f", lat, lon)
 		server.echo.Logger.Errorf("error querying the timezone db: %v", notFoundErr)
@@ -134,10 +144,6 @@ func (server *Server) handleTzRequest(c echo.Context) error {
 		server.echo.Logger.Errorf("error querying the timezone db: %v", err)
 		return c.JSON(http.StatusInternalServerError, newErrResponse(err))
 	}
-}
-
-func newTzResponse(tzName string, lat, lon float64) map[string]any {
-	return map[string]any{"tz": tzName, "coords": map[string]float64{Latitude: lat, Longitude: lon}}
 }
 
 func newErrResponse(err error) map[string]any {
@@ -169,4 +175,21 @@ func parseCoordinate(val, side string) (float64, error) {
 		}
 	}
 	return c, nil
+}
+
+func parseTimeInfo(timeInfo string) (time.Time, error) {
+	if strings.TrimSpace(timeInfo) == "" {
+		return time.Time{}, nil
+	}
+
+	if timeInfo == "now" {
+		return time.Now().UTC(), nil
+	}
+
+	targetUTCTime, err := time.Parse(time.RFC3339, timeInfo)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("invalid time format, expected RFC3339 or 'now'")
+	}
+
+	return targetUTCTime, nil
 }
