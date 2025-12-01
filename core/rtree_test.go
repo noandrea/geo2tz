@@ -1,4 +1,4 @@
-package db
+package core
 
 import (
 	"archive/zip"
@@ -35,7 +35,7 @@ func TestGeo2TzTreeIndex_LookupZone(t *testing.T) {
 				return
 			}
 			assert.NoError(t, err)
-			assert.Equal(t, got, tt.Tz, "expected %s to be %s for https://www.google.com/maps/@%v,%v,12z", tt.Tz, got, tt.Lat, tt.Lon)
+			assert.Equal(t, got.TZ, tt.Tz, "expected %s to be %s for https://www.google.com/maps/@%v,%v,12z", tt.Tz, got, tt.Lat, tt.Lon)
 		})
 	}
 }

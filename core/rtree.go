@@ -1,4 +1,4 @@
-package db
+package core
 
 import (
 	"encoding/json"
@@ -9,7 +9,6 @@ import (
 
 	"archive/zip"
 
-	"github.com/noandrea/geo2tz/v2/core"
 	"github.com/tidwall/rtree"
 )
 
@@ -69,7 +68,7 @@ func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, erro
 // Lookup returns the timezone ID for a given latitude and longitude
 // if the timezone is not found, it returns an error
 // It first searches in the land index, if not found, it searches in the sea index
-func (g *Geo2TzRTreeIndex) Lookup(lat, lon float64) (tzd core.TimeZoneData, err error) {
+func (g *Geo2TzRTreeIndex) Lookup(lat, lon float64) (tzd TimeZoneData, err error) {
 	tzd.Coords.Lat = lat
 	tzd.Coords.Lon = lon
 

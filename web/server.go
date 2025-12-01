@@ -13,7 +13,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/noandrea/geo2tz/v2/core"
-	"github.com/noandrea/geo2tz/v2/core/db"
 	"github.com/noandrea/geo2tz/v2/helpers"
 
 	"golang.org/x/crypto/blake2b"
@@ -40,7 +39,7 @@ func isEq(expectedTokenHash []byte, actualToken string) bool {
 
 type Server struct {
 	config          ConfigSchema
-	tzDB            db.TzDBIndex
+	tzDB            core.TzDBIndex
 	tzRelease       TzRelease
 	echo            *echo.Echo
 	authEnabled     bool
@@ -66,7 +65,7 @@ func NewServer(config ConfigSchema) (*Server, error) {
 	server.echo = echo.New()
 
 	// load the database
-	tzDB, err := db.NewGeo2TzRTreeIndexFromGeoJSON(config.Tz.DatabaseName)
+	tzDB, err := core.NewGeo2TzRTreeIndexFromGeoJSON(config.Tz.DatabaseName)
 	if err != nil {
 		return nil, errors.Join(ErrorDatabaseFileNotFound, err)
 	}
@@ -136,7 +135,7 @@ func (server *Server) handleTzRequest(c echo.Context) error {
 			core.ComputeTimeData(&tzInfo, timeInfo)
 		}
 		return c.JSON(http.StatusOK, tzInfo)
-	case db.ErrNotFound:
+	case core.ErrNotFound:
 		notFoundErr := fmt.Errorf("timezone not found for coordinates %f,%f", lat, lon)
 		server.echo.Logger.Errorf("error querying the timezone db: %v", notFoundErr)
 		return c.JSON(http.StatusNotFound, newErrResponse(notFoundErr))
