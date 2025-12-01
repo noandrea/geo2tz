@@ -15,7 +15,7 @@ jobs:
           fetch-depth: 2
       - uses: actions/setup-go@v6
         with:
-          go-version: "1.22"
+          go-version: "1.24.3"
       - name: Run coverage
         run: make test-ci
       - name: Upload coverage to Codecov
@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v6
         with:
-          go-version: 1.21
+          go-version: 1.24.3
       - uses: actions/checkout@v6
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
