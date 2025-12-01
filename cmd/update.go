@@ -88,13 +88,21 @@ func fetchAndCacheFile(filename string, url string) (err error) {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { 
+		if err:=resp.Body.Close(); err!=nil{
+			fmt.Println("Error closing response body:", err)
+		}
+	}()
 
 	f, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Println("Error closing file:", err)
+		}
+	}()
 
 	n, err := io.Copy(f, resp.Body)
 	if err != nil {
@@ -120,7 +128,11 @@ func getLatest() (web.TzRelease, error) {
 		err = fmt.Errorf("failed to get release url: %w", err)
 		return web.TzRelease{}, err
 	}
-	defer r.Body.Close()
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			fmt.Println("Error closing response body:", err)
+		}
+	}()
 	// get the tag name
 	releaseURL, err := r.Location()
 	if err != nil {

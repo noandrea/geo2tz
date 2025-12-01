@@ -39,7 +39,11 @@ func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, erro
 	if err != nil {
 		return nil, err
 	}
-	defer zipFile.Close()
+	defer func() { 
+		if err := zipFile.Close(); err != nil {
+			fmt.Println("Error closing zip file:", err)
+		}
+	}()
 
 	// create a new shape index
 	gri := &Geo2TzRTreeIndex{
@@ -189,7 +193,11 @@ func decodeJSON(f *zip.File, iter func(tz *timezoneGeo) error) (err error) {
 	if rc, err = f.Open(); err != nil {
 		return err
 	}
-	defer rc.Close()
+	defer func() {
+		if err := rc.Close(); err != nil {
+			fmt.Println("Error closing read closer:", err)
+		}
+	}()
 
 	dec := json.NewDecoder(rc)
 
