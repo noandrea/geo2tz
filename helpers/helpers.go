@@ -24,7 +24,12 @@ func LoadJSON(fromFile string, data any) (err error) {
 	if err != nil {
 		return
 	}
-	defer jsonFile.Close()
+	defer func() { 
+		if err := jsonFile.Close(); err != nil {
+			fmt.Println("Error closing JSON file:", err)
+		}
+	}()
+
 	jsonParser := json.NewDecoder(jsonFile)
 	if err = jsonParser.Decode(data); err != nil {
 		return
