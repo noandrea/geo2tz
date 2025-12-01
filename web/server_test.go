@@ -188,14 +188,14 @@ func Test_TzRequest(t *testing.T) {
 			"51.477811",
 			"0",
 			http.StatusOK,
-			`{"coords":{"lat":51.477811,"lon":0},"tz":"Europe/London"}`,
+			`{"tz":"Europe/London","coords":{"lat":51.477811,"lon":0}}`,
 		},
 		{
 			"PASS: valid coordinates",
 			"41.9028",
 			"12.4964",
 			http.StatusOK,
-			`{"coords":{"lat":41.9028,"lon":12.4964},"tz":"Europe/Rome"}`,
+			`{"tz":"Europe/Rome","coords":{"lat":41.9028,"lon":12.4964}}`,
 		},
 		{
 			"FAIL: invalid latitude",

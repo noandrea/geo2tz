@@ -1,4 +1,4 @@
-package db
+package core
 
 import (
 	"encoding/json"
@@ -68,21 +68,23 @@ func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, erro
 // Lookup returns the timezone ID for a given latitude and longitude
 // if the timezone is not found, it returns an error
 // It first searches in the land index, if not found, it searches in the sea index
-func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (tzID string, err error) {
+func (g *Geo2TzRTreeIndex) Lookup(lat, lon float64) (tzd TimeZoneData, err error) {
+	tzd.Coords.Lat = lat
+	tzd.Coords.Lon = lon
 
 	lookup_num := 0
 	// search the land index
 	g.land.Search(
-		[2]float64{lat, lng},
-		[2]float64{lat, lng},
+		[2]float64{lat, lon},
+		[2]float64{lat, lon},
 		func(min, max [2]float64, data timezoneGeo) bool {
 			lookup_num++
 			if lookup_num >= g.max_lookups {
 				return false
 			}
 			for _, p := range data.Polygons {
-				if isPointInPolygonPIP(vertex{lat, lng}, p) {
-					tzID = data.Name
+				if isPointInPolygonPIP(vertex{lat, lon}, p) {
+					tzd.TZ = data.Name
 					return false
 				}
 			}
@@ -90,20 +92,20 @@ func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (tzID string, err error) {
 		},
 	)
 
-	if tzID == "" {
+	if tzd.TZ == "" {
 		// if not found, search the sea index
 		lookup_num = 0
 		g.sea.Search(
-			[2]float64{lat, lng},
-			[2]float64{lat, lng},
+			[2]float64{lat, lon},
+			[2]float64{lat, lon},
 			func(min, max [2]float64, data timezoneGeo) bool {
 				lookup_num++
 				if lookup_num >= g.max_lookups {
 					return false
 				}
 				for _, p := range data.Polygons {
-					if isPointInPolygonPIP(vertex{lat, lng}, p) {
-						tzID = data.Name
+					if isPointInPolygonPIP(vertex{lat, lon}, p) {
+						tzd.TZ = data.Name
 						return false
 					}
 				}
@@ -112,7 +114,7 @@ func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (tzID string, err error) {
 		)
 	}
 
-	if tzID == "" {
+	if tzd.TZ == "" {
 		err = ErrNotFound
 	}
 	return

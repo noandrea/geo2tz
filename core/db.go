@@ -1,9 +1,11 @@
-package db
+package core
 
-import "errors"
+import (
+	"errors"
+)
 
 type TzDBIndex interface {
-	Lookup(lat, lon float64) (string, error)
+	Lookup(lat, lon float64) (TimeZoneData, error)
 }
 
 var (

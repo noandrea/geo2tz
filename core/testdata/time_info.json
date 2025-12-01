@@ -1,0 +1,23 @@
+[
+  {
+    "input": {
+      "lat": 50.4504,
+      "lon": 30.5245
+    },
+    "expected": {
+      "tz": "Europe/Kyiv",
+      "coords": {
+        "lat": 50.4504,
+        "lon": 30.5245
+      },
+      "time_info": {
+        "utc_time": "2025-06-07T10:00:00Z",
+        "local_time": "2025-06-07T13:00:00+03:00",
+        "sunset": "2025-06-07T21:05:40+03:00",
+        "sunrise": "2025-06-07T04:48:08+03:00",
+        "is_dst": true,
+        "is_daylight": true
+      }
+    }
+  }
+]

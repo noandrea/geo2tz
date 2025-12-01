@@ -10,7 +10,7 @@ Timezone data comes from [github.com/evansiroky/timezone-boundary-builder](https
 
 ## Maturity Level
 
-This project is considered mature and stable, having undergone extensive testing and refinement over time. It is now in a state where it can be reliably used in production environments. The following statistic shows the number of docker pulls for the project:  
+This project is considered mature and stable, having undergone extensive testing and refinement over time. It is now in a state where it can be reliably used in production environments. The following statistic shows the number of docker pulls for the project:
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/noandrea/geo2tz?style=for-the-badge)
 
@@ -78,9 +78,43 @@ curl -v http://localhost:2004/tz/51.477811/1000 | jq
 }
 ```
 
+
+### Extended time information
+
+Geo2Tz will optionally report time information for the requested location. To enable time information, add the `time_info` query parameter to the request.
+
+The `time_info` can be set to `now` to retrieve the current time in the requested location or to a RFC3339 formatted date/time string to retrieve the time at that specific moment.
+
+For exampe to retrieve the time info for a specific time:
+```sh
+curl -s http://localhost:2004/tz/50.4504/30.5245\?time_info\=2025-06-07T10:00:00Z | jq
+```
+
+will return
+
+```json
+{
+  "tz": "Europe/Kyiv",
+  "coords": {
+    "lat": 50.4504,
+    "lon": 30.5245
+  },
+  "time_info": {
+    "local_time": "2025-06-07T13:00:00+03:00",
+    "utc_time": "2025-06-07T10:00:00Z",
+    "sunset": "2025-06-07T21:05:40+03:00",
+    "sunrise": "2025-06-07T04:48:08+03:00",
+    "is_dst": true,
+    "is_daylight": true
+  }
+}
+```
+
+### Timezone database version
+
 The version of the database is exposed at `/tz/version`:
 
-```console
+```sh
 curl -s http://localhost:2004/tz/version | jq
 ```
 
@@ -91,7 +125,6 @@ curl -s http://localhost:2004/tz/version | jq
   "geo_data_url": "https://github.com/evansiroky/timezone-boundary-builder/releases/download/2024a/timezones-with-oceans.geojson.zip"
 }
 ```
-
 ### Authorization
 
 Geo2Tz supports a basic token authorization mechanism, if the configuration value for `web.auth_token_value` is a non-empty string, geo2tz will check the query parameter value to authorize incoming requests.
@@ -105,7 +138,7 @@ docker run --pull=always -p 2004:2004 -e GEO2TZ_WEB_AUTH_TOKEN_VALUE=secret ghcr
 will enable authorization. With the authorization enabled, a query that does not specify the token will fail with an HTTP code 401:
 
 ```sh
-> curl -sv http://localhost:2004/tz/41.902782/12.496365 | jq
+curl -sv http://localhost:2004/tz/41.902782/12.496365 | jq
 ```
 
 ```
@@ -145,7 +178,6 @@ Passing the token in the query parameters will succeed instead:
   "tz": "Europe/Rome"
 }
 ```
-
 
 ## Docker
 
@@ -260,4 +292,3 @@ geo2tz update 2023b
 
 
 the `update` command will download the timezone geojson zip and generate a version file in the `tzdata` directory, the version file is used to track the current version of the database.
-

@@ -12,7 +12,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/noandrea/geo2tz/v2/db"
+	"github.com/noandrea/geo2tz/v2/core"
 	"github.com/noandrea/geo2tz/v2/helpers"
 
 	"golang.org/x/crypto/blake2b"
@@ -39,7 +39,7 @@ func isEq(expectedTokenHash []byte, actualToken string) bool {
 
 type Server struct {
 	config          ConfigSchema
-	tzDB            db.TzDBIndex
+	tzDB            core.TzDBIndex
 	tzRelease       TzRelease
 	echo            *echo.Echo
 	authEnabled     bool
@@ -65,7 +65,7 @@ func NewServer(config ConfigSchema) (*Server, error) {
 	server.echo = echo.New()
 
 	// load the database
-	tzDB, err := db.NewGeo2TzRTreeIndexFromGeoJSON(config.Tz.DatabaseName)
+	tzDB, err := core.NewGeo2TzRTreeIndexFromGeoJSON(config.Tz.DatabaseName)
 	if err != nil {
 		return nil, errors.Join(ErrorDatabaseFileNotFound, err)
 	}
@@ -119,14 +119,23 @@ func (server *Server) handleTzRequest(c echo.Context) error {
 		server.echo.Logger.Errorf("error parsing longitude: %v", err)
 		return c.JSON(http.StatusBadRequest, newErrResponse(err))
 	}
+	// parse exteneded paramter
+	timeInfo, err := parseTimeInfo(c.QueryParam("time_info"))
+	if err != nil {
+		server.echo.Logger.Errorf("error parsing time info: %v", err)
+		return c.JSON(http.StatusBadRequest, newErrResponse(err))
+	}
 
 	// query the coordinates
-	res, err := server.tzDB.Lookup(lat, lon)
+	tzInfo, err := server.tzDB.Lookup(lat, lon)
 	switch err {
 	case nil:
-		tzr := newTzResponse(res, lat, lon)
-		return c.JSON(http.StatusOK, tzr)
-	case db.ErrNotFound:
+		// get the time
+		if !timeInfo.IsZero() {
+			core.ComputeTimeData(&tzInfo, timeInfo)
+		}
+		return c.JSON(http.StatusOK, tzInfo)
+	case core.ErrNotFound:
 		notFoundErr := fmt.Errorf("timezone not found for coordinates %f,%f", lat, lon)
 		server.echo.Logger.Errorf("error querying the timezone db: %v", notFoundErr)
 		return c.JSON(http.StatusNotFound, newErrResponse(notFoundErr))
@@ -134,10 +143,6 @@ func (server *Server) handleTzRequest(c echo.Context) error {
 		server.echo.Logger.Errorf("error querying the timezone db: %v", err)
 		return c.JSON(http.StatusInternalServerError, newErrResponse(err))
 	}
-}
-
-func newTzResponse(tzName string, lat, lon float64) map[string]any {
-	return map[string]any{"tz": tzName, "coords": map[string]float64{Latitude: lat, Longitude: lon}}
 }
 
 func newErrResponse(err error) map[string]any {
@@ -169,4 +174,21 @@ func parseCoordinate(val, side string) (float64, error) {
 		}
 	}
 	return c, nil
+}
+
+func parseTimeInfo(timeInfo string) (time.Time, error) {
+	if strings.TrimSpace(timeInfo) == "" {
+		return time.Time{}, nil
+	}
+
+	if timeInfo == "now" {
+		return time.Now().UTC(), nil
+	}
+
+	targetUTCTime, err := time.Parse(time.RFC3339, timeInfo)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("invalid time format, expected RFC3339 or 'now'")
+	}
+
+	return targetUTCTime, nil
 }
