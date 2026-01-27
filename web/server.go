@@ -72,10 +72,20 @@ func NewServer(config ConfigSchema) (*Server, error) {
 	server.tzDB = tzDB
 
 	// check token authorization
-	server.authHashedToken = hash(config.Web.AuthTokenValue)
 	if len(config.Web.AuthTokenValue) > 0 {
 		server.echo.Logger.Info("Authorization enabled")
-		server.authEnabled = true
+		server.authHashedToken = hash(config.Web.AuthTokenValue)
+		authMiddleware := middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
+			KeyLookup: fmt.Sprintf("query:%s,header:%s", config.Web.AuthTokenParamName, config.Web.AuthTokenParamName),
+			Validator: func(key string, c echo.Context) (bool, error) {
+				return isEq(server.authHashedToken, key), nil
+			},
+			ErrorHandler: func(err error, c echo.Context) error {
+				server.echo.Logger.Errorf("request unauthorized, invalid token", err)
+				return c.JSON(http.StatusUnauthorized, map[string]interface{}{"message": "unauthorized"})
+			},
+		})
+		server.echo.Use(authMiddleware)
 	} else {
 		server.echo.Logger.Info("Authorization disabled")
 	}
@@ -93,20 +103,23 @@ func NewServer(config ConfigSchema) (*Server, error) {
 
 	// register routes
 	server.echo.GET("/tz/:lat/:lon", server.handleTzRequest)
-	server.echo.GET("/tz/version", server.handleTzVersion)
+	server.echo.GET("/tz/version", server.handleTzVersionRequest)
+	server.echo.GET("/time/:tzID", server.handleTimeRequest)
 
 	return &server, nil
 }
 
-func (server *Server) handleTzRequest(c echo.Context) error {
-	// token verification
-	if server.authEnabled {
-		requestToken := c.QueryParam(server.config.Web.AuthTokenParamName)
-		if !isEq(server.authHashedToken, requestToken) {
-			server.echo.Logger.Errorf("request unauthorized, invalid token: %v", requestToken)
-			return c.JSON(http.StatusUnauthorized, map[string]interface{}{"message": "unauthorized"})
-		}
+func (server *Server) handleTimeRequest(c echo.Context) error {
+	tzID := c.Param("tzID")
+	zr, err := server.tzDB.LookupTime(tzID)
+	if err != nil {
+		server.echo.Logger.Errorf("error loading timezone %s: %v", tzID, err)
+		return c.JSON(http.StatusNotFound, newErrResponse(err))
 	}
+	return c.JSON(http.StatusOK, zr)
+}
+
+func (server *Server) handleTzRequest(c echo.Context) error {
 	// parse latitude
 	lat, err := parseCoordinate(c.Param(Latitude), Latitude)
 	if err != nil {
@@ -119,7 +132,6 @@ func (server *Server) handleTzRequest(c echo.Context) error {
 		server.echo.Logger.Errorf("error parsing longitude: %v", err)
 		return c.JSON(http.StatusBadRequest, newErrResponse(err))
 	}
-
 	// query the coordinates
 	res, err := server.tzDB.Lookup(lat, lon)
 	switch err {
@@ -144,7 +156,7 @@ func newErrResponse(err error) map[string]any {
 	return map[string]any{"message": err.Error()}
 }
 
-func (server *Server) handleTzVersion(c echo.Context) error {
+func (server *Server) handleTzVersionRequest(c echo.Context) error {
 	return c.JSON(http.StatusOK, server.tzRelease)
 }
 
