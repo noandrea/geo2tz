@@ -82,7 +82,7 @@ func NewServer(config ConfigSchema) (*Server, error) {
 
 	server.echo.HideBanner = true
 	server.echo.Use(middleware.CORS())
-	server.echo.Use(middleware.Logger())
+	server.echo.Use(middleware.RequestLogger())
 	server.echo.Use(middleware.Recover())
 
 	// load the release info
