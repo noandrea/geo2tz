@@ -2,7 +2,7 @@
 
 [![QA](https://github.com/noandrea/geo2tz/actions/workflows/quality.yml/badge.svg)](https://github.com/noandrea/geo2tz/actions/workflows/quality.yml) [![GoDoc](https://godoc.org/github.com/noandrea/geo2tz?status.svg)](https://godoc.org/github.com/noandrea/geo2tz) [![Go Report Card](https://goreportcard.com/badge/github.com/noandrea/geo2tz)](https://goreportcard.com/report/github.com/noandrea/geo2tz)
 
-A self-host-able service to get the timezone given geo-coordinates (lat/lng)
+A self-hostable service to get the timezone given geo-coordinates (lat/lng)
 
 Timezone data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder).
 
@@ -10,7 +10,7 @@ Timezone data comes from [github.com/evansiroky/timezone-boundary-builder](https
 
 ## Maturity Level
 
-This project is considered mature and stable, having undergone extensive testing and refinement over time. It is now in a state where it can be reliably used in production environments. The following statistic shows the number of docker pulls for the project:  
+This project is considered mature and stable, having undergone extensive testing and refinement over time. It is now in a state where it can be reliably used in production environments. The badge below shows the number of Docker pulls for the project:
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/noandrea/geo2tz?style=for-the-badge)
 
@@ -19,17 +19,19 @@ We value your feedback and contributions! If you encounter any bugs or have idea
 
 ## Motivations
 
-Geo-coordinates might be sensitive information to share in any context, this project provides a privacy-friendly, self-hosted solution to ensure that coordinates were not leaked to 3rd party services.
+Geo-coordinates can be sensitive information. This project provides a privacy-friendly, self-hosted solution that ensures coordinates are not leaked to third-party services.
 
 ## API
 
-the service exposes one API to retrieve the timezone given a pair of coordinates:
+The service exposes two endpoints: one to look up the timezone for a pair of coordinates, and one to report the version of the timezone database in use.
+
+### Timezone lookup
 
 ```http
 GET /tz/${LATITUDE}/${LONGITUDE}
 ```
 
-that returns a JSON reply (`http/200`), for example:
+Returns a JSON reply (`http/200`), for example:
 
 ```console
 curl -s http://localhost:2004/tz/51.477811/0 | jq
@@ -46,7 +48,7 @@ curl -s http://localhost:2004/tz/51.477811/0 | jq
 
 ```
 
-or in case of errors (`http/4**`), for example:
+On invalid input it returns a `4xx` response, for example:
 
 ```console
 curl -v http://localhost:2004/tz/51.477811/1000 | jq
@@ -78,7 +80,9 @@ curl -v http://localhost:2004/tz/51.477811/1000 | jq
 }
 ```
 
-The version of the database is exposed at `/tz/version`:
+### Database version
+
+The version of the database in use is exposed at `/tz/version`:
 
 ```console
 curl -s http://localhost:2004/tz/version | jq
@@ -86,11 +90,13 @@ curl -s http://localhost:2004/tz/version | jq
 
 ```json
 {
-  "version": "2024a",
-  "url": "https://github.com/evansiroky/timezone-boundary-builder/releases/tag/2024a",
-  "geo_data_url": "https://github.com/evansiroky/timezone-boundary-builder/releases/download/2024a/timezones-with-oceans.geojson.zip"
+  "version": "2026b",
+  "url": "https://github.com/evansiroky/timezone-boundary-builder/releases/tag/2026b",
+  "geo_data_url": "https://github.com/evansiroky/timezone-boundary-builder/releases/download/2026b/timezones-with-oceans.geojson.zip"
 }
 ```
+
+Coordinates are decimal degrees in the ranges `[-90, 90]` for latitude and `[-180, 180]` for longitude.
 
 ### Authorization
 
@@ -146,6 +152,19 @@ Passing the token in the query parameters will succeed instead:
 }
 ```
 
+## Configuration
+
+Geo2Tz is configured via environment variables (prefixed with `GEO2TZ_`) or an optional config file. Defaults are listed below.
+
+| Environment variable | Default | Description |
+| --- | --- | --- |
+| `GEO2TZ_WEB_LISTEN_ADDRESS` | `:2004` | Address the HTTP server binds to. |
+| `GEO2TZ_WEB_AUTH_TOKEN_VALUE` | (empty) | When non-empty, enables token authorization. |
+| `GEO2TZ_WEB_AUTH_TOKEN_PARAM_NAME` | `t` | Query-parameter name carrying the auth token. |
+| `GEO2TZ_TZ_DATABASE_NAME` | bundled tz DB | Path to the timezone GeoJSON database. |
+| `GEO2TZ_TZ_VERSION_FILE` | bundled version file | Path to the version metadata file. |
+
+A config file is loaded automatically when present at `/etc/geo2tz/config.{yaml,toml,json}`. A custom path can be passed with `--config`. Keys mirror the env vars but are nested under `web.*` / `tz.*` (e.g. `web.auth_token_value`).
 
 ## Docker
 
@@ -155,28 +174,28 @@ Docker image is available at [geo2tz](https://github.com/noandrea/geo2tz/pkgs/co
 docker run --pull=always -p 2004:2004 ghcr.io/noandrea/geo2tz:latest
 ```
 
-The image is built on [scratch](https://hub.docker.com/_/scratch):
+The image is built `FROM` [scratch](https://hub.docker.com/_/scratch), so it contains only the `geo2tz` binary and the bundled timezone database — no shell, package manager, or utilities.
 
+## Docker Compose
 
-## Docker compose
-
-Docker compose YAML example
+Docker Compose YAML example:
 
 ```yaml
-version: '3'
 services:
   geo2tz:
     container_name: geo2tz
-    image: ghcr.io/noandrea/geo2tz:latest
+    image: ghcr.io/noandrea/geo2tz:latest   # pin to a release tag for production deployments
     ports:
-    - 2004:2004
+      - "2004:2004"
+    restart: unless-stopped
     # uncomment to enable authorization via request token
     # environment:
-    # - GEO2TZ_WEB_AUTH_TOKEN_VALUE=somerandomstringhere
-    # - GEO2TZ_WEB_AUTH_TOKEN_PARAM_NAME=t
-    # - GEO2TZ_WEB_LISTEN_ADDRESS=":2004"
-
+    #   GEO2TZ_WEB_AUTH_TOKEN_VALUE: ${GEO2TZ_TOKEN}
+    #   GEO2TZ_WEB_AUTH_TOKEN_PARAM_NAME: t
+    #   GEO2TZ_WEB_LISTEN_ADDRESS: ":2004"
 ```
+
+The `version` top-level field has been removed from the Compose spec and is no longer needed. The image is built `FROM scratch`, so it has no shell or `wget`/`curl` — Compose healthchecks based on those will not work; use an external probe instead.
 
 ## K8s
 
@@ -185,7 +204,7 @@ Kubernetes configuration example:
 ```yaml
 ---
 # Deployment
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -203,23 +222,41 @@ spec:
         app: geo2tz
     spec:
       containers:
-      - env:
-        # if this var is not empty it will enabled token authorization for requests
-        #- name: GEO2TZ_WEB_AUTH_TOKEN_VALUE
-        #  value: "secretsmaybebetter" # default is empty
-        #- name: GEO2TZ_WEB_AUTH_TOKEN_PARAM_NAME
-        #  value: "t" # default value
-        #- name: GEO2TZ_WEB_LISTEN_ADDRESS
-        #  value: ":2004" # default value
-        image: ghcr.io/noandrea/geo2tz:latest
-        imagePullPolicy: Always
-        name: geo2tz
-        ports:
-        - name: http
-          containerPort: 2004
+        - name: geo2tz
+          image: ghcr.io/noandrea/geo2tz:latest   # pin to a release tag for production deployments
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 2004
+          # if GEO2TZ_WEB_AUTH_TOKEN_VALUE is non-empty, token authorization is enabled
+          # env:
+          #   - name: GEO2TZ_WEB_AUTH_TOKEN_VALUE
+          #     value: "secretsmaybebetter" # default is empty
+          #   - name: GEO2TZ_WEB_AUTH_TOKEN_PARAM_NAME
+          #     value: "t"                  # default value
+          #   - name: GEO2TZ_WEB_LISTEN_ADDRESS
+          #     value: ":2004"              # default value
+          readinessProbe:
+            httpGet:
+              path: /tz/version
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /tz/version
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
 ---
-# Service
-# the service for the above deployment
+# Service for the above deployment
 apiVersion: v1
 kind: Service
 metadata:
@@ -227,13 +264,12 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - name: http
-    port: 80
-    protocol: TCP
-    targetPort: http
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: http
   selector:
     app: geo2tz
-
 ```
 
 ## Development notes
@@ -252,12 +288,12 @@ geo2tz update current
 geo2tz update latest
 ```
 
-2. update to a specific version
+3. update to a specific version
 
 ```console
 geo2tz update 2023b
 ```
 
 
-the `update` command will download the timezone geojson zip and generate a version file in the `tzdata` directory, the version file is used to track the current version of the database.
+The `update` command downloads the timezone GeoJSON zip and writes a version file into the `tzdata` directory; the version file is used to track the current version of the database.
 
