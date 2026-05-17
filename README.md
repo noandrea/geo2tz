@@ -31,7 +31,7 @@ The service exposes two endpoints: one to look up the timezone for a pair of coo
 GET /tz/${LATITUDE}/${LONGITUDE}
 ```
 
-that returns a JSON reply (`http/200`), for example:
+Returns a JSON reply (`http/200`), for example:
 
 ```console
 curl -s http://localhost:2004/tz/51.477811/0 | jq
@@ -48,7 +48,7 @@ curl -s http://localhost:2004/tz/51.477811/0 | jq
 
 ```
 
-or in case of errors (`http/4**`), for example:
+On invalid input it returns a `4xx` response, for example:
 
 ```console
 curl -v http://localhost:2004/tz/51.477811/1000 | jq
@@ -152,6 +152,19 @@ Passing the token in the query parameters will succeed instead:
 }
 ```
 
+## Configuration
+
+Geo2Tz is configured via environment variables (prefixed with `GEO2TZ_`) or an optional config file. Defaults are listed below.
+
+| Environment variable | Default | Description |
+| --- | --- | --- |
+| `GEO2TZ_WEB_LISTEN_ADDRESS` | `:2004` | Address the HTTP server binds to. |
+| `GEO2TZ_WEB_AUTH_TOKEN_VALUE` | (empty) | When non-empty, enables token authorization. |
+| `GEO2TZ_WEB_AUTH_TOKEN_PARAM_NAME` | `t` | Query-parameter name carrying the auth token. |
+| `GEO2TZ_TZ_DATABASE_NAME` | bundled tz DB | Path to the timezone GeoJSON database. |
+| `GEO2TZ_TZ_VERSION_FILE` | bundled version file | Path to the version metadata file. |
+
+A config file is loaded automatically when present at `/etc/geo2tz/config.{yaml,toml,json}`. A custom path can be passed with `--config`. Keys mirror the env vars but are nested under `web.*` / `tz.*` (e.g. `web.auth_token_value`).
 
 ## Docker
 
@@ -165,23 +178,24 @@ The image is built `FROM` [scratch](https://hub.docker.com/_/scratch), so it con
 
 ## Docker Compose
 
-Docker compose YAML example
+Docker Compose YAML example:
 
 ```yaml
-version: '3'
 services:
   geo2tz:
     container_name: geo2tz
-    image: ghcr.io/noandrea/geo2tz:latest
+    image: ghcr.io/noandrea/geo2tz:latest   # pin to a release tag for production deployments
     ports:
-    - 2004:2004
+      - "2004:2004"
+    restart: unless-stopped
     # uncomment to enable authorization via request token
     # environment:
-    # - GEO2TZ_WEB_AUTH_TOKEN_VALUE=somerandomstringhere
-    # - GEO2TZ_WEB_AUTH_TOKEN_PARAM_NAME=t
-    # - GEO2TZ_WEB_LISTEN_ADDRESS=":2004"
-
+    #   GEO2TZ_WEB_AUTH_TOKEN_VALUE: ${GEO2TZ_TOKEN}
+    #   GEO2TZ_WEB_AUTH_TOKEN_PARAM_NAME: t
+    #   GEO2TZ_WEB_LISTEN_ADDRESS: ":2004"
 ```
+
+The `version` top-level field has been removed from the Compose spec and is no longer needed. The image is built `FROM scratch`, so it has no shell or `wget`/`curl` — Compose healthchecks based on those will not work; use an external probe instead.
 
 ## K8s
 
@@ -190,7 +204,7 @@ Kubernetes configuration example:
 ```yaml
 ---
 # Deployment
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -208,23 +222,41 @@ spec:
         app: geo2tz
     spec:
       containers:
-      - env:
-        # if this var is not empty it will enabled token authorization for requests
-        #- name: GEO2TZ_WEB_AUTH_TOKEN_VALUE
-        #  value: "secretsmaybebetter" # default is empty
-        #- name: GEO2TZ_WEB_AUTH_TOKEN_PARAM_NAME
-        #  value: "t" # default value
-        #- name: GEO2TZ_WEB_LISTEN_ADDRESS
-        #  value: ":2004" # default value
-        image: ghcr.io/noandrea/geo2tz:latest
-        imagePullPolicy: Always
-        name: geo2tz
-        ports:
-        - name: http
-          containerPort: 2004
+        - name: geo2tz
+          image: ghcr.io/noandrea/geo2tz:latest   # pin to a release tag for production deployments
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 2004
+          # if GEO2TZ_WEB_AUTH_TOKEN_VALUE is non-empty, token authorization is enabled
+          # env:
+          #   - name: GEO2TZ_WEB_AUTH_TOKEN_VALUE
+          #     value: "secretsmaybebetter" # default is empty
+          #   - name: GEO2TZ_WEB_AUTH_TOKEN_PARAM_NAME
+          #     value: "t"                  # default value
+          #   - name: GEO2TZ_WEB_LISTEN_ADDRESS
+          #     value: ":2004"              # default value
+          readinessProbe:
+            httpGet:
+              path: /tz/version
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /tz/version
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
 ---
-# Service
-# the service for the above deployment
+# Service for the above deployment
 apiVersion: v1
 kind: Service
 metadata:
@@ -232,13 +264,12 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-  - name: http
-    port: 80
-    protocol: TCP
-    targetPort: http
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: http
   selector:
     app: geo2tz
-
 ```
 
 ## Development notes
@@ -264,5 +295,5 @@ geo2tz update 2023b
 ```
 
 
-the `update` command will download the timezone geojson zip and generate a version file in the `tzdata` directory, the version file is used to track the current version of the database.
+The `update` command downloads the timezone GeoJSON zip and writes a version file into the `tzdata` directory; the version file is used to track the current version of the database.
 
