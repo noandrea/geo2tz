@@ -1,4 +1,11 @@
 <a name="unreleased"></a>
+## [2.8.0](https://github.com/noandrea/geo2tz/compare/v2.7.1...v2.8.0) (2026-05-17)
+
+
+### Features
+
+* update tz database to v2026b ([#71](https://github.com/noandrea/geo2tz/issues/71)) ([e9e5fcd](https://github.com/noandrea/geo2tz/commit/e9e5fcdf7466d23526bae29e0f9378990403cda6))
+
 ## [2.7.1](https://github.com/noandrea/geo2tz/compare/v2.7.0...v2.7.1) (2025-05-31)
 
 
