@@ -2,7 +2,7 @@
 
 [![QA](https://github.com/noandrea/geo2tz/actions/workflows/quality.yml/badge.svg)](https://github.com/noandrea/geo2tz/actions/workflows/quality.yml) [![GoDoc](https://godoc.org/github.com/noandrea/geo2tz?status.svg)](https://godoc.org/github.com/noandrea/geo2tz) [![Go Report Card](https://goreportcard.com/badge/github.com/noandrea/geo2tz)](https://goreportcard.com/report/github.com/noandrea/geo2tz)
 
-A self-host-able service to get the timezone given geo-coordinates (lat/lng)
+A self-hostable service to get the timezone given geo-coordinates (lat/lng)
 
 Timezone data comes from [github.com/evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder).
 
@@ -10,7 +10,7 @@ Timezone data comes from [github.com/evansiroky/timezone-boundary-builder](https
 
 ## Maturity Level
 
-This project is considered mature and stable, having undergone extensive testing and refinement over time. It is now in a state where it can be reliably used in production environments. The following statistic shows the number of docker pulls for the project:  
+This project is considered mature and stable, having undergone extensive testing and refinement over time. It is now in a state where it can be reliably used in production environments. The badge below shows the number of Docker pulls for the project:
 
 ![Docker Pulls](https://img.shields.io/docker/pulls/noandrea/geo2tz?style=for-the-badge)
 
@@ -19,11 +19,13 @@ We value your feedback and contributions! If you encounter any bugs or have idea
 
 ## Motivations
 
-Geo-coordinates might be sensitive information to share in any context, this project provides a privacy-friendly, self-hosted solution to ensure that coordinates were not leaked to 3rd party services.
+Geo-coordinates can be sensitive information. This project provides a privacy-friendly, self-hosted solution that ensures coordinates are not leaked to third-party services.
 
 ## API
 
-the service exposes one API to retrieve the timezone given a pair of coordinates:
+The service exposes two endpoints: one to look up the timezone for a pair of coordinates, and one to report the version of the timezone database in use.
+
+### Timezone lookup
 
 ```http
 GET /tz/${LATITUDE}/${LONGITUDE}
@@ -78,7 +80,9 @@ curl -v http://localhost:2004/tz/51.477811/1000 | jq
 }
 ```
 
-The version of the database is exposed at `/tz/version`:
+### Database version
+
+The version of the database in use is exposed at `/tz/version`:
 
 ```console
 curl -s http://localhost:2004/tz/version | jq
@@ -86,11 +90,13 @@ curl -s http://localhost:2004/tz/version | jq
 
 ```json
 {
-  "version": "2024a",
-  "url": "https://github.com/evansiroky/timezone-boundary-builder/releases/tag/2024a",
-  "geo_data_url": "https://github.com/evansiroky/timezone-boundary-builder/releases/download/2024a/timezones-with-oceans.geojson.zip"
+  "version": "2026b",
+  "url": "https://github.com/evansiroky/timezone-boundary-builder/releases/tag/2026b",
+  "geo_data_url": "https://github.com/evansiroky/timezone-boundary-builder/releases/download/2026b/timezones-with-oceans.geojson.zip"
 }
 ```
+
+Coordinates are decimal degrees in the ranges `[-90, 90]` for latitude and `[-180, 180]` for longitude.
 
 ### Authorization
 
@@ -155,10 +161,9 @@ Docker image is available at [geo2tz](https://github.com/noandrea/geo2tz/pkgs/co
 docker run --pull=always -p 2004:2004 ghcr.io/noandrea/geo2tz:latest
 ```
 
-The image is built on [scratch](https://hub.docker.com/_/scratch):
+The image is built `FROM` [scratch](https://hub.docker.com/_/scratch), so it contains only the `geo2tz` binary and the bundled timezone database — no shell, package manager, or utilities.
 
-
-## Docker compose
+## Docker Compose
 
 Docker compose YAML example
 
@@ -252,7 +257,7 @@ geo2tz update current
 geo2tz update latest
 ```
 
-2. update to a specific version
+3. update to a specific version
 
 ```console
 geo2tz update 2023b
