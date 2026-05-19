@@ -12,7 +12,8 @@ Timezone data comes from [github.com/evansiroky/timezone-boundary-builder](https
 
 This project is considered mature and stable, having undergone extensive testing and refinement over time. It is now in a state where it can be reliably used in production environments. The badge below shows the number of Docker pulls for the project:
 
-![Docker Pulls](https://img.shields.io/docker/pulls/noandrea/geo2tz?style=for-the-badge)
+<!-- ![Docker Pulls](https://img.shields.io/docker/pulls/noandrea/geo2tz?style=for-the-badge) -->
+![GHCR Pulls](https://ghcr-badge.elias.eu.org/shield/noandrea/geo2tz/geo2tz)
 
 ### Contributing
 We value your feedback and contributions! If you encounter any bugs or have ideas for new features, please don't hesitate to [open an issue](https://github.com/noandrea/geo2tz/issues/new). Your input is crucial in helping us improve and evolve the project.
