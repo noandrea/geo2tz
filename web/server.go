@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 	"github.com/noandrea/geo2tz/v2/db"
 	"github.com/noandrea/geo2tz/v2/helpers"
 
@@ -44,25 +44,38 @@ type Server struct {
 	echo            *echo.Echo
 	authEnabled     bool
 	authHashedToken []byte
+	shutdownCtx     context.Context
+	cancel          context.CancelFunc
+	done            chan struct{}
 }
 
 func (server *Server) Start() error {
-	return server.echo.Start(server.config.Web.ListenAddress)
+	defer close(server.done)
+	sc := echo.StartConfig{
+		Address:         server.config.Web.ListenAddress,
+		HideBanner:      true,
+		GracefulTimeout: teardownTimeout,
+	}
+	return sc.Start(server.shutdownCtx, server.echo)
 }
 
-func (server *Server) Teardown() (err error) {
-	ctx, cancel := context.WithTimeout(context.Background(), teardownTimeout)
-	defer cancel()
-	if server.echo != nil {
-		err = server.echo.Shutdown(ctx)
+func (server *Server) Teardown() error {
+	if server.cancel == nil {
+		return nil
 	}
-	return
+	// cancelling the context triggers the graceful shutdown handled inside
+	// StartConfig.Start; wait for it to return before reporting completion.
+	server.cancel()
+	<-server.done
+	return nil
 }
 
 func NewServer(config ConfigSchema) (*Server, error) {
 	var server Server
 	server.config = config
 	server.echo = echo.New()
+	server.shutdownCtx, server.cancel = context.WithCancel(context.Background())
+	server.done = make(chan struct{})
 
 	// load the database
 	tzDB, err := db.NewGeo2TzRTreeIndexFromGeoJSON(config.Tz.DatabaseName)
@@ -80,8 +93,9 @@ func NewServer(config ConfigSchema) (*Server, error) {
 		server.echo.Logger.Info("Authorization disabled")
 	}
 
-	server.echo.HideBanner = true
-	server.echo.Use(middleware.CORS())
+	// v5's CORS() no longer defaults to allowing all origins, so pass "*"
+	// explicitly to keep the previous allow-all behavior.
+	server.echo.Use(middleware.CORS("*"))
 	server.echo.Use(middleware.RequestLogger())
 	server.echo.Use(middleware.Recover())
 
@@ -98,25 +112,25 @@ func NewServer(config ConfigSchema) (*Server, error) {
 	return &server, nil
 }
 
-func (server *Server) handleTzRequest(c echo.Context) error {
+func (server *Server) handleTzRequest(c *echo.Context) error {
 	// token verification
 	if server.authEnabled {
 		requestToken := c.QueryParam(server.config.Web.AuthTokenParamName)
 		if !isEq(server.authHashedToken, requestToken) {
-			server.echo.Logger.Errorf("request unauthorized, invalid token: %v", requestToken)
+			server.echo.Logger.Error("request unauthorized, invalid token", "token", requestToken)
 			return c.JSON(http.StatusUnauthorized, map[string]interface{}{"message": "unauthorized"})
 		}
 	}
 	// parse latitude
 	lat, err := parseCoordinate(c.Param(Latitude), Latitude)
 	if err != nil {
-		server.echo.Logger.Errorf("error parsing latitude: %v", err)
+		server.echo.Logger.Error("error parsing latitude", "error", err)
 		return c.JSON(http.StatusBadRequest, newErrResponse(err))
 	}
 	// parse longitude
 	lon, err := parseCoordinate(c.Param(Longitude), Longitude)
 	if err != nil {
-		server.echo.Logger.Errorf("error parsing longitude: %v", err)
+		server.echo.Logger.Error("error parsing longitude", "error", err)
 		return c.JSON(http.StatusBadRequest, newErrResponse(err))
 	}
 
@@ -128,10 +142,10 @@ func (server *Server) handleTzRequest(c echo.Context) error {
 		return c.JSON(http.StatusOK, tzr)
 	case db.ErrNotFound:
 		notFoundErr := fmt.Errorf("timezone not found for coordinates %f,%f", lat, lon)
-		server.echo.Logger.Errorf("error querying the timezone db: %v", notFoundErr)
+		server.echo.Logger.Error("error querying the timezone db", "error", notFoundErr)
 		return c.JSON(http.StatusNotFound, newErrResponse(notFoundErr))
 	default:
-		server.echo.Logger.Errorf("error querying the timezone db: %v", err)
+		server.echo.Logger.Error("error querying the timezone db", "error", err)
 		return c.JSON(http.StatusInternalServerError, newErrResponse(err))
 	}
 }
@@ -144,7 +158,7 @@ func newErrResponse(err error) map[string]any {
 	return map[string]any{"message": err.Error()}
 }
 
-func (server *Server) handleTzVersion(c echo.Context) error {
+func (server *Server) handleTzVersion(c *echo.Context) error {
 	return c.JSON(http.StatusOK, server.tzRelease)
 }
 
