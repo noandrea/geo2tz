@@ -10,6 +10,7 @@ import (
 
 	"encoding/json"
 
+	"github.com/labstack/echo/v5"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -226,8 +227,10 @@ func Test_TzRequest(t *testing.T) {
 			rec := httptest.NewRecorder()
 			c := server.echo.NewContext(req, rec)
 			c.SetPath("/tz/:lat/:lon")
-			c.SetParamNames("lat", "lon")
-			c.SetParamValues(tt.lat, tt.lon)
+			c.SetPathValues(echo.PathValues{
+				{Name: Latitude, Value: tt.lat},
+				{Name: Longitude, Value: tt.lon},
+			})
 
 			// Assertions
 			if assert.NoError(t, server.handleTzRequest(c)) {
