@@ -1,4 +1,11 @@
 <a name="unreleased"></a>
+## [2.9.0](https://github.com/noandrea/geo2tz/compare/v2.8.0...v2.9.0) (2026-07-01)
+
+
+### Features
+
+* upgrade to echo v5 ([#74](https://github.com/noandrea/geo2tz/issues/74)) ([c271283](https://github.com/noandrea/geo2tz/commit/c271283d2e0342c0f4f3df01554f3d2225830faa))
+
 ## [2.8.0](https://github.com/noandrea/geo2tz/compare/v2.7.1...v2.8.0) (2026-05-17)
 
 
