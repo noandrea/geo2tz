@@ -167,6 +167,64 @@ Geo2Tz is configured via environment variables (prefixed with `GEO2TZ_`) or an o
 
 A config file is loaded automatically when present at `/etc/geo2tz/config.{yaml,toml,json}`. A custom path can be passed with `--config`. Keys mirror the env vars but are nested under `web.*` / `tz.*` (e.g. `web.auth_token_value`).
 
+## MCP server
+
+Geo2Tz also ships as an [MCP](https://modelcontextprotocol.io) server, exposing the timezone lookup as tools for MCP clients (AI assistants, IDEs, agents). It runs over stdio and performs lookups offline against the local timezone database (no coordinates leave the machine).
+
+Start it with:
+
+```sh
+geo2tz mcp
+```
+
+Available tools:
+
+| Tool | Description |
+| ---- | ----------- |
+| `get_timezone` | returns the IANA timezone identifier for a pair of coordinates (lat/lon) |
+| `get_tz_version` | returns the version of the timezone boundaries database in use |
+
+The Docker image bundles the timezone database, so the Docker configuration below works without extra setup.
+
+Example client configuration (Claude Desktop, `claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "geo2tz": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "ghcr.io/noandrea/geo2tz:latest", "mcp"]
+    }
+  }
+}
+```
+
+Or, with a local binary (VS Code `mcp.json`, Claude Code, or any stdio MCP client). The timezone database is not bundled with the binary, so first fetch it into a data directory:
+
+```sh
+mkdir -p ~/.local/share/geo2tz
+geo2tz update latest \
+  --db ~/.local/share/geo2tz/timezones.zip \
+  --version-file ~/.local/share/geo2tz/version.json
+```
+
+Then point the `GEO2TZ_TZ_*` environment variables at it (absolute paths, no `~` expansion):
+
+```json
+{
+  "mcpServers": {
+    "geo2tz": {
+      "command": "/usr/local/bin/geo2tz",
+      "args": ["mcp"],
+      "env": {
+        "GEO2TZ_TZ_DATABASE_NAME": "/home/you/.local/share/geo2tz/timezones.zip",
+        "GEO2TZ_TZ_VERSION_FILE": "/home/you/.local/share/geo2tz/version.json"
+      }
+    }
+  }
+}
+```
+
 ## Docker
 
 Docker image is available at [geo2tz](https://github.com/noandrea/geo2tz/pkgs/container/geo2tz)
