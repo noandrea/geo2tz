@@ -16,6 +16,7 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -47,7 +48,7 @@ To update to a specific version:
 geo2tz update 2023d
 `,
 	Args: cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, args []string) error {
 		versionName := args[0]
 		return update(versionName, web.Settings.Tz.DatabaseName)
 	},
@@ -67,6 +68,7 @@ func update(versionName, targetFile string) (err error) {
 		if err != nil {
 			return
 		}
+		println("Latest version is", release.Version)
 	}
 	// shall we read from the version file?
 	if versionName == "current" {
@@ -76,7 +78,7 @@ func update(versionName, targetFile string) (err error) {
 		}
 		println("Current version is", release.Version)
 	}
-	if err := fetchAndCacheFile(targetFile, release.GeoDataURL); err != nil {
+	if err = fetchAndCacheFile(targetFile, release.GeoDataURL); err != nil {
 		return err
 	}
 	err = helpers.SaveJSON(release, web.Settings.Tz.VersionFile)
@@ -84,13 +86,17 @@ func update(versionName, targetFile string) (err error) {
 }
 
 func fetchAndCacheFile(filename string, url string) (err error) {
-	resp, err := http.Get(url)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
+	if err != nil {
+		return fmt.Errorf("failed to build the download request: %w", err)
+	}
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}
-	defer func() { 
-		if err:=resp.Body.Close(); err!=nil{
-			fmt.Println("Error closing response body:", err)
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil {
+			fmt.Println("Error closing response body:", closeErr)
 		}
 	}()
 
@@ -99,8 +105,8 @@ func fetchAndCacheFile(filename string, url string) (err error) {
 		return err
 	}
 	defer func() {
-		if err := f.Close(); err != nil {
-			fmt.Println("Error closing file:", err)
+		if closeErr := f.Close(); closeErr != nil {
+			fmt.Println("Error closing file:", closeErr)
 		}
 	}()
 
@@ -118,19 +124,23 @@ func getLatest() (web.TzRelease, error) {
 	// create http client
 	client := &http.Client{
 		Timeout: 1 * time.Second,
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		CheckRedirect: func(_ *http.Request, _ []*http.Request) error {
 			// don't follow redirects
 			return http.ErrUseLastResponse
 		},
 	}
-	r, err := client.Head(LatestReleaseURL)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodHead, LatestReleaseURL, nil)
+	if err != nil {
+		return web.TzRelease{}, fmt.Errorf("failed to build the release request: %w", err)
+	}
+	r, err := client.Do(req)
 	if err != nil {
 		err = fmt.Errorf("failed to get release url: %w", err)
 		return web.TzRelease{}, err
 	}
 	defer func() {
-		if err := r.Body.Close(); err != nil {
-			fmt.Println("Error closing response body:", err)
+		if closeErr := r.Body.Close(); closeErr != nil {
+			fmt.Println("Error closing response body:", closeErr)
 		}
 	}()
 	// get the tag name
