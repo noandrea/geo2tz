@@ -1,6 +1,6 @@
 module github.com/noandrea/geo2tz/v2
 
-go 1.26.0
+go 1.26.7
 
 require (
 	github.com/labstack/echo/v5 v5.2.1
