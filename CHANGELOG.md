@@ -1,4 +1,11 @@
 <a name="unreleased"></a>
+## [2.11.0](https://github.com/noandrea/geo2tz/compare/v2.10.0...v2.11.0) (2026-09-01)
+
+
+### Features
+
+* **mcp:** add MCP server exposing the timezone lookup as tools ([#81](https://github.com/noandrea/geo2tz/issues/81)) ([04f2f03](https://github.com/noandrea/geo2tz/commit/04f2f037dff4735253734de8616bc044a1a79c46))
+
 ## [2.10.0](https://github.com/noandrea/geo2tz/compare/v2.9.0...v2.10.0) (2026-08-01)
 
 
