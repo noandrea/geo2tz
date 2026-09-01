@@ -12,7 +12,7 @@ func SaveJSON(data any, toFile string) (err error) {
 	if err != nil {
 		return
 	}
-	if err = os.WriteFile(toFile, jsonString, os.ModePerm); err != nil {
+	if err = os.WriteFile(toFile, jsonString, 0o600); err != nil {
 		return
 	}
 	return
@@ -24,9 +24,9 @@ func LoadJSON(fromFile string, data any) (err error) {
 	if err != nil {
 		return
 	}
-	defer func() { 
-		if err := jsonFile.Close(); err != nil {
-			fmt.Println("Error closing JSON file:", err)
+	defer func() {
+		if closeErr := jsonFile.Close(); closeErr != nil {
+			fmt.Println("Error closing JSON file:", closeErr)
 		}
 	}()
 

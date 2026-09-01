@@ -127,7 +127,7 @@ func TestNewServer(t *testing.T) {
 		},
 	}
 	_, err := NewServer(settings)
-	assert.ErrorIs(t, err, ErrorVersionFileNotFound)
+	assert.ErrorIs(t, err, ErrVersionFileNotFound)
 
 	settings = ConfigSchema{
 		Tz: TzSchema{
@@ -136,7 +136,7 @@ func TestNewServer(t *testing.T) {
 		},
 	}
 	_, err = NewServer(settings)
-	assert.ErrorIs(t, err, ErrorDatabaseFileNotFound)
+	assert.ErrorIs(t, err, ErrDatabaseFileNotFound)
 }
 
 func Test_TzVersion(t *testing.T) {

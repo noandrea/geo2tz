@@ -1,21 +1,29 @@
 package db
 
 import (
+	"archive/zip"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"strings"
 
-	"archive/zip"
-
 	"github.com/tidwall/rtree"
 )
 
+const (
+	maxLookupAttempts = 30
+	coordinateLen     = 2
+	minLat            = -90.0
+	maxLat            = 90.0
+	minLng            = -180.0
+	maxLng            = 180.0
+)
+
 type Geo2TzRTreeIndex struct {
-	max_lookups int
-	land        rtree.RTreeG[timezoneGeo]
-	sea         rtree.RTreeG[timezoneGeo]
+	maxLookups int
+	land       rtree.RTreeG[timezoneGeo]
+	sea        rtree.RTreeG[timezoneGeo]
 }
 
 // IsOcean checks if the timezone is for oceans
@@ -24,12 +32,12 @@ func IsOcean(label string) bool {
 }
 
 // Insert adds a new timezone bounding box to the index
-func (g *Geo2TzRTreeIndex) Insert(min, max [2]float64, element timezoneGeo) {
+func (g *Geo2TzRTreeIndex) Insert(bboxMin, bboxMax [2]float64, element timezoneGeo) {
 	if IsOcean(element.Name) {
-		g.sea.Insert(min, max, element)
+		g.sea.Insert(bboxMin, bboxMax, element)
 		return
 	}
-	g.land.Insert(min, max, element)
+	g.land.Insert(bboxMin, bboxMax, element)
 }
 
 // NewGeo2TzRTreeIndexFromGeoJSON creates a new Geo2TzRTreeIndex from a GeoJSON file
@@ -39,15 +47,15 @@ func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, erro
 	if err != nil {
 		return nil, err
 	}
-	defer func() { 
-		if err := zipFile.Close(); err != nil {
-			fmt.Println("Error closing zip file:", err)
+	defer func() {
+		if closeErr := zipFile.Close(); closeErr != nil {
+			fmt.Println("Error closing zip file:", closeErr)
 		}
 	}()
 
 	// create a new shape index
 	gri := &Geo2TzRTreeIndex{
-		max_lookups: 30,
+		maxLookups: maxLookupAttempts,
 	}
 
 	// this function will add the timezone polygons to the shape index
@@ -60,7 +68,7 @@ func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, erro
 	// iterate over the zip file
 	for _, v := range zipFile.File {
 		if strings.EqualFold(".json", v.Name[len(v.Name)-5:]) {
-			if err := decodeJSON(v, iter); err != nil {
+			if err = decodeJSON(v, iter); err != nil {
 				return nil, err
 			}
 		}
@@ -74,14 +82,14 @@ func NewGeo2TzRTreeIndexFromGeoJSON(geoJSONPath string) (*Geo2TzRTreeIndex, erro
 // It first searches in the land index, if not found, it searches in the sea index
 func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (tzID string, err error) {
 
-	lookup_num := 0
+	lookupNum := 0
 	// search the land index
 	g.land.Search(
 		[2]float64{lat, lng},
 		[2]float64{lat, lng},
-		func(min, max [2]float64, data timezoneGeo) bool {
-			lookup_num++
-			if lookup_num >= g.max_lookups {
+		func(_, _ [2]float64, data timezoneGeo) bool {
+			lookupNum++
+			if lookupNum >= g.maxLookups {
 				return false
 			}
 			for _, p := range data.Polygons {
@@ -96,13 +104,13 @@ func (g *Geo2TzRTreeIndex) Lookup(lat, lng float64) (tzID string, err error) {
 
 	if tzID == "" {
 		// if not found, search the sea index
-		lookup_num = 0
+		lookupNum = 0
 		g.sea.Search(
 			[2]float64{lat, lng},
 			[2]float64{lat, lng},
-			func(min, max [2]float64, data timezoneGeo) bool {
-				lookup_num++
-				if lookup_num >= g.max_lookups {
+			func(_, _ [2]float64, data timezoneGeo) bool {
+				lookupNum++
+				if lookupNum >= g.maxLookups {
 					return false
 				}
 				for _, p := range data.Polygons {
@@ -131,9 +139,12 @@ func isPointInPolygonPIP(point vertex, polygon polygon) bool {
 		vi := polygon.Vertices[i]
 		vj := polygon.Vertices[j]
 		// Check if the point lies on an edge of the polygon (including horizontal)
-		if (vi.lng == vj.lng && vi.lng == point.lng && point.lat >= min(vi.lat, vj.lat) && point.lat <= max(vi.lat, vj.lat)) ||
-			((vi.lat < point.lat && point.lat <= vj.lat) || (vj.lat < point.lat && point.lat <= vi.lat)) &&
-				(point.lng < (vj.lng-vi.lng)*(point.lat-vi.lat)/(vj.lat-vi.lat)+vi.lng) {
+		verticalEdge := vi.lng == vj.lng
+		onEdgeLng := vi.lng == point.lng
+		withinEdgeLat := point.lat >= min(vi.lat, vj.lat) && point.lat <= max(vi.lat, vj.lat)
+		crossesEdge := (vi.lat < point.lat && point.lat <= vj.lat) || (vj.lat < point.lat && point.lat <= vi.lat)
+		intersectLng := point.lng < (vj.lng-vi.lng)*(point.lat-vi.lat)/(vj.lat-vi.lat)+vi.lng
+		if (verticalEdge && onEdgeLng && withinEdgeLat) || (crossesEdge && intersectLng) {
 			oddNodes = !oddNodes
 		}
 	}
@@ -159,10 +170,10 @@ type polygon struct {
 func newPolygon() polygon {
 	return polygon{
 		Vertices: make([]vertex, 0),
-		MaxLat:   -90,
-		MinLat:   90,
-		MaxLng:   -180,
-		MinLng:   180,
+		MaxLat:   minLat,
+		MinLat:   maxLat,
+		MaxLng:   minLng,
+		MinLng:   maxLng,
 	}
 }
 
@@ -194,8 +205,8 @@ func decodeJSON(f *zip.File, iter func(tz *timezoneGeo) error) (err error) {
 		return err
 	}
 	defer func() {
-		if err := rc.Close(); err != nil {
-			fmt.Println("Error closing read closer:", err)
+		if closeErr := rc.Close(); closeErr != nil {
+			fmt.Println("Error closing read closer:", closeErr)
 		}
 	}()
 
@@ -206,45 +217,18 @@ func decodeJSON(f *zip.File, iter func(tz *timezoneGeo) error) (err error) {
 		if token, err = dec.Token(); err != nil {
 			break
 		}
-		if t, ok := token.(string); ok && t == "features" {
-			if token, err = dec.Token(); err == nil && token.(json.Delim) == '[' {
-				return decodeFeatures(dec, iter) // decode features
+		if t, isFeatures := token.(string); isFeatures && t == "features" {
+			if token, err = dec.Token(); err == nil {
+				if delim, isList := token.(json.Delim); isList && delim == '[' {
+					return decodeFeatures(dec, iter) // decode features
+				}
 			}
 		}
 	}
 	return errors.New("error no features found")
 }
 
-func decodeFeatures(dec *json.Decoder, fn func(tz *timezoneGeo) error) error {
-	var err error
-	toPolygon := func(raw any) (polygon, error) {
-		container, ok := raw.([]any)
-		if !ok {
-			return polygon{}, fmt.Errorf("invalid polygon data, expected[][]any, got %T", raw)
-		}
-
-		p := newPolygon()
-		for _, c := range container {
-			c, ok := c.([]any)
-			if !ok {
-				return p, fmt.Errorf("invalid container data, expected []any, got %T", c)
-			}
-			if len(c) != 2 {
-				return p, fmt.Errorf("invalid point data, expected 2, got %v", len(c))
-			}
-			lat, ok := c[1].(float64)
-			if !ok {
-				return p, fmt.Errorf("invalid lat data, float64, got %T", c)
-			}
-			lng, ok := c[0].(float64)
-			if !ok {
-				return p, fmt.Errorf("invalid lng data, float64, got %T", c)
-			}
-			p.AddVertex(lat, lng)
-		}
-		return p, nil
-	}
-
+func decodeFeatures(dec *json.Decoder, fn func(tz *timezoneGeo) error) (err error) {
 	var f struct {
 		Type       string `json:"type"`
 		Properties struct {
@@ -260,28 +244,70 @@ func decodeFeatures(dec *json.Decoder, fn func(tz *timezoneGeo) error) error {
 		if err = dec.Decode(&f); err != nil {
 			return err
 		}
-		tg := &timezoneGeo{Name: f.Properties.TzID}
-		switch f.Geometry.Item {
-		case "Polygon":
-			// we ignore the holes, that is why we only take the first block of coordinates
-			p, err := toPolygon(f.Geometry.Coordinates[0])
-			if err != nil {
-				return err
-			}
-			tg.Polygons = []polygon{p}
-		case "MultiPolygon":
-			for _, multi := range f.Geometry.Coordinates {
-				// we ignore the holes, that is why we only take the first block of coordinates
-				p, err := toPolygon(multi.([]any)[0])
-				if err != nil {
-					return err
-				}
-				tg.Polygons = append(tg.Polygons, p)
-			}
+		var polygons []polygon
+		if polygons, err = geometryToPolygons(f.Geometry.Item, f.Geometry.Coordinates); err != nil {
+			return err
 		}
-		if err = fn(tg); err != nil {
+		if err = fn(&timezoneGeo{Name: f.Properties.TzID, Polygons: polygons}); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// geometryToPolygons converts a geojson geometry into the list of polygons of a timezone,
+// the holes in the geometries are ignored
+func geometryToPolygons(geometryType string, coordinates []any) ([]polygon, error) {
+	switch geometryType {
+	case "Polygon":
+		p, err := coordinatesToPolygon(coordinates[0])
+		if err != nil {
+			return nil, err
+		}
+		return []polygon{p}, nil
+	case "MultiPolygon":
+		polygons := make([]polygon, 0, len(coordinates))
+		for _, multi := range coordinates {
+			multiPolygon, ok := multi.([]any)
+			if !ok {
+				return nil, fmt.Errorf("invalid multipolygon data, expected []any, got %T", multi)
+			}
+			p, pErr := coordinatesToPolygon(multiPolygon[0])
+			if pErr != nil {
+				return nil, pErr
+			}
+			polygons = append(polygons, p)
+		}
+		return polygons, nil
+	default:
+		return nil, nil
+	}
+}
+
+func coordinatesToPolygon(raw any) (polygon, error) {
+	container, isList := raw.([]any)
+	if !isList {
+		return polygon{}, fmt.Errorf("invalid polygon data, expected[][]any, got %T", raw)
+	}
+
+	p := newPolygon()
+	for _, item := range container {
+		coordinates, ok := item.([]any)
+		if !ok {
+			return p, fmt.Errorf("invalid container data, expected []any, got %T", item)
+		}
+		if len(coordinates) != coordinateLen {
+			return p, fmt.Errorf("invalid point data, expected %d, got %v", coordinateLen, len(coordinates))
+		}
+		lat, ok := coordinates[1].(float64)
+		if !ok {
+			return p, fmt.Errorf("invalid lat data, float64, got %T", coordinates)
+		}
+		lng, ok := coordinates[0].(float64)
+		if !ok {
+			return p, fmt.Errorf("invalid lng data, float64, got %T", coordinates)
+		}
+		p.AddVertex(lat, lng)
+	}
+	return p, nil
 }
