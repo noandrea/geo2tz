@@ -34,8 +34,8 @@ type TzSchema struct {
 	VersionFile  string `mapstructure:"version_file"`
 }
 
-// WebSchema configuration
-type WebSchema struct {
+// Schema configuration
+type Schema struct {
 	ListenAddress      string `mapstructure:"listen_address,omitempty"`
 	AuthTokenValue     string `mapstructure:"auth_token_value,omitempty"`
 	AuthTokenParamName string `mapstructure:"auth_token_param_name,omitempty"`
@@ -43,9 +43,9 @@ type WebSchema struct {
 
 // ConfigSchema main configuration for the news room
 type ConfigSchema struct {
-	Tz             TzSchema  `mapstructure:"tz"`
-	Web            WebSchema `mapstructure:"web"`
-	RuntimeVersion string    `mapstructure:"-"`
+	Tz             TzSchema `mapstructure:"tz"`
+	Web            Schema   `mapstructure:"web"`
+	RuntimeVersion string   `mapstructure:"-"`
 }
 
 // Defaults configure defaults

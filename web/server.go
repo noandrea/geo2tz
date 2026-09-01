@@ -80,7 +80,7 @@ func NewServer(config ConfigSchema) (*Server, error) {
 	// load the database
 	tzDB, err := db.NewGeo2TzRTreeIndexFromGeoJSON(config.Tz.DatabaseName)
 	if err != nil {
-		return nil, errors.Join(ErrorDatabaseFileNotFound, err)
+		return nil, errors.Join(ErrDatabaseFileNotFound, err)
 	}
 	server.tzDB = tzDB
 
@@ -101,7 +101,7 @@ func NewServer(config ConfigSchema) (*Server, error) {
 
 	// load the release info
 	if err = helpers.LoadJSON(config.Tz.VersionFile, &server.tzRelease); err != nil {
-		err = errors.Join(ErrorVersionFileNotFound, err, fmt.Errorf("error loading the timezone release info: %w", err))
+		err = errors.Join(ErrVersionFileNotFound, err, fmt.Errorf("error loading the timezone release info: %w", err))
 		return nil, err
 	}
 
@@ -136,11 +136,11 @@ func (server *Server) handleTzRequest(c *echo.Context) error {
 
 	// query the coordinates
 	res, err := server.tzDB.Lookup(lat, lon)
-	switch err {
-	case nil:
+	switch {
+	case err == nil:
 		tzr := newTzResponse(res, lat, lon)
 		return c.JSON(http.StatusOK, tzr)
-	case db.ErrNotFound:
+	case errors.Is(err, db.ErrNotFound):
 		notFoundErr := fmt.Errorf("timezone not found for coordinates %f,%f", lat, lon)
 		server.echo.Logger.Error("error querying the timezone db", "error", notFoundErr)
 		return c.JSON(http.StatusNotFound, newErrResponse(notFoundErr))

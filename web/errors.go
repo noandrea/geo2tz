@@ -3,8 +3,8 @@ package web
 import "errors"
 
 var (
-	ErrorVersionFileNotFound  = errors.New("release version file not found")
-	ErrorVersionFileInvalid   = errors.New("release version file invalid")
-	ErrorDatabaseFileNotFound = errors.New("database file not found")
-	ErrorDatabaseFileInvalid  = errors.New("database file invalid")
+	ErrVersionFileNotFound  = errors.New("release version file not found")
+	ErrVersionFileInvalid   = errors.New("release version file invalid")
+	ErrDatabaseFileNotFound = errors.New("database file not found")
+	ErrDatabaseFileInvalid  = errors.New("database file invalid")
 )
