@@ -29,12 +29,12 @@ func TestGeo2TzTreeIndex_LookupZone(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.Tz, func(t *testing.T) {
-			got, err := gsi.Lookup(tt.Lat, tt.Lon)
+			got, lookupErr := gsi.Lookup(tt.Lat, tt.Lon)
 			if tt.NotFound {
-				assert.ErrorIs(t, err, ErrNotFound, "expected %s to be not_found for https://www.google.com/maps/@%v,%v,12z", got, tt.Lat, tt.Lon)
+				assert.ErrorIs(t, lookupErr, ErrNotFound, "expected %s to be not_found for https://www.google.com/maps/@%v,%v,12z", got, tt.Lat, tt.Lon)
 				return
 			}
-			assert.NoError(t, err)
+			assert.NoError(t, lookupErr)
 			assert.Equal(t, got, tt.Tz, "expected %s to be %s for https://www.google.com/maps/@%v,%v,12z", tt.Tz, got, tt.Lat, tt.Lon)
 		})
 	}
@@ -60,12 +60,12 @@ func BenchmarkGeo2TzTreeIndex_LookupZone(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for _, tt := range tests {
-			_, err := gsi.Lookup(tt.Lat, tt.Lon)
+			_, lookupErr := gsi.Lookup(tt.Lat, tt.Lon)
 			if tt.NotFound {
-				assert.ErrorIs(b, err, ErrNotFound)
+				assert.ErrorIs(b, lookupErr, ErrNotFound)
 				return
 			}
-			assert.NoError(b, err)
+			assert.NoError(b, lookupErr)
 		}
 	}
 }
