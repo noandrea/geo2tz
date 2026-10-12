@@ -1,4 +1,11 @@
 <a name="unreleased"></a>
+## [2.12.0](https://github.com/noandrea/geo2tz/compare/v2.11.0...v2.12.0) (2026-10-12)
+
+
+### Features
+
+* **tz:** update timezone to v2026e ([#83](https://github.com/noandrea/geo2tz/issues/83)) ([ef02598](https://github.com/noandrea/geo2tz/commit/ef02598504c60fd3397f15a9be04da47c2f1c50a))
+
 ## [2.11.0](https://github.com/noandrea/geo2tz/compare/v2.10.0...v2.11.0) (2026-09-01)
 
 
