@@ -1,4 +1,11 @@
 <a name="unreleased"></a>
+## [2.12.1](https://github.com/noandrea/geo2tz/compare/v2.12.0...v2.12.1) (2026-10-23)
+
+
+### Bug Fixes
+
+* **deps:** bump Go to 1.27.3 (CVE-2026-111943) ([#85](https://github.com/noandrea/geo2tz/issues/85)) ([b4115a6](https://github.com/noandrea/geo2tz/commit/b4115a68a2d64a17e7ddefaab02101a985b111c5))
+
 ## [2.12.0](https://github.com/noandrea/geo2tz/compare/v2.11.0...v2.12.0) (2026-10-12)
 
 
